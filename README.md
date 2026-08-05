@@ -80,6 +80,7 @@ homelab-starter
 | **Actual Budget** | 5006 | Local-first personal finance and budgeting |
 | **Nextcloud** | 8181 | Your own Google Drive — files, calendar, contacts, video calls |
 | **Syncthing** | 8384 | Continuous file sync between all your devices — no cloud middleman |
+| **Baikal** | 5232 | Lightweight CalDAV/CardDAV server — sync calendar and contacts to any phone or desktop app |
 | **NAS Bundle** (Samba + FileBrowser) | 8082 | Network file share + browser-based file manager |
 
 ### Media

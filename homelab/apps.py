@@ -163,6 +163,29 @@ APPS: dict[str, dict] = {
         "volumes": {"filebrowser-db": None},
     },
 
+    "baikal": {
+        "name": "Baikal",
+        "description": "Lightweight CalDAV/CardDAV server — sync your calendar and contacts to any phone or desktop app",
+        "category": "Your Digital Life",
+        "port": 5232,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "services": {
+            "baikal": {
+                "image": "ckulka/baikal:nginx",
+                "container_name": "baikal",
+                "restart": "unless-stopped",
+                "ports": ["5232:80"],
+                "volumes": [
+                    "baikal-config:/var/www/baikal/Specific",
+                    "baikal-data:/var/www/baikal/data",
+                ],
+                "networks": ["homelab"],
+            }
+        },
+        "volumes": {"baikal-config": None, "baikal-data": None},
+    },
+
     # -------------------------------------------------------------------------
     # MEDIA
     # -------------------------------------------------------------------------
@@ -1796,7 +1819,7 @@ APPS: dict[str, dict] = {
 # Category index — display order within each category is intentional
 # ---------------------------------------------------------------------------
 CATEGORIES: dict[str, list[str]] = {
-    "Your Digital Life": ["vaultwarden", "actual", "nextcloud", "syncthing", "nas"],
+    "Your Digital Life": ["vaultwarden", "actual", "nextcloud", "syncthing", "baikal", "nas"],
     "Media": ["jellyfin", "plex", "immich", "navidrome", "kavita", "audiobookshelf"],
     "Media Automation": ["sonarr", "radarr", "prowlarr", "qbittorrent", "jellyseerr", "bazarr"],
     "AI": ["ai"],
