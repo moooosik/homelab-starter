@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homelab-starter — Your own Netflix, Google Drive, and smart home. One command.</title>
+  <meta name="description" content="Set up Jellyfin, Nextcloud, Vaultwarden, and 25 more apps on your home server — one command, no config files, no cloud bills." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #07090f;
+      --bg2:      #0c1120;
+      --bg3:      #111827;
+      --card:     rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.08);
+      --green:    #4ade80;
+      --green-d:  #16a34a;
+      --text:     #f1f5f9;
+      --muted:    #94a3b8;
+      --dim:      #475569;
+      --indigo:   #818cf8;
+      --r:        10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ─────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(7,9,15,0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--green);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--muted); }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 14px;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .btn-github {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); text-decoration: none;
+      padding: 8px 16px; border-radius: 8px;
+      font-size: 14px; font-weight: 500;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-github:hover { border-color: var(--green); background: rgba(74,222,128,.06); }
+    .btn-github svg { width: 16px; height: 16px; fill: currentColor; }
+
+    /* ── HERO ────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* dot grid background */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+      pointer-events: none;
+    }
+    /* green glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(74,222,128,.08) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -60%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(74,222,128,.08); border: 1px solid rgba(74,222,128,.2);
+      color: var(--green); font-size: 13px; font-weight: 500;
+      padding: 6px 14px; border-radius: 99px;
+      margin-bottom: 28px;
+      animation: fadeUp .6s ease both;
+    }
+    .hero-badge::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(40px, 7vw, 80px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      max-width: 820px;
+      margin-bottom: 24px;
+      animation: fadeUp .6s .1s ease both;
+    }
+    h1 em { font-style: normal; color: var(--green); }
+
+    .hero-sub {
+      font-size: clamp(17px, 2.5vw, 20px);
+      color: var(--muted);
+      max-width: 560px;
+      font-weight: 300;
+      margin-bottom: 44px;
+      animation: fadeUp .6s .2s ease both;
+    }
+
+    .command-block {
+      display: flex; align-items: center; gap: 0;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      max-width: 600px; width: 100%;
+      margin-bottom: 16px;
+      animation: fadeUp .6s .3s ease both;
+    }
+    .command-block code {
+      flex: 1;
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--green);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .copy-btn {
+      padding: 16px 20px;
+      background: none; border: none; border-left: 1px solid var(--border);
+      color: var(--muted); cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      transition: color .2s, background .2s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
+    .copy-btn.copied { color: var(--green); }
+
+    .hero-note {
+      font-size: 13px; color: var(--dim);
+      animation: fadeUp .6s .4s ease both;
+    }
+
+    /* ── STRIP ───────────────────────────────────── */
+    .strip {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .strip-item {
+      flex: 1; min-width: 160px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 24px 32px;
+      border-right: 1px solid var(--border);
+      font-size: 14px; color: var(--muted);
+    }
+    .strip-item:last-child { border-right: none; }
+    .strip-item strong { color: var(--text); font-weight: 500; }
+    .strip-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    /* ── SECTIONS ────────────────────────────────── */
+    section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--green);
+      letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 800; letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+    .section-sub { color: var(--muted); font-size: 18px; max-width: 500px; font-weight: 300; }
+
+    /* ── HOW IT WORKS ────────────────────────────── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px;
+      margin-top: 60px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .step {
+      padding: 40px 36px;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .step:last-child { border-right: none; }
+    .step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 48px; font-weight: 500;
+      color: rgba(74,222,128,.15);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+    .step h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px; font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .step p { color: var(--muted); font-size: 15px; line-height: 1.7; }
+    .step-tag {
+      display: inline-block; margin-top: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--green);
+      background: rgba(74,222,128,.08);
+      padding: 5px 12px; border-radius: 99px;
+    }
+
+    /* ── TERMINAL DEMO ───────────────────────────── */
+    .terminal-wrap {
+      margin-top: 60px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      background: #050709;
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 18px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+    }
+    .tbar-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .tbar-dot.red   { background: #ff5f57; }
+    .tbar-dot.amber { background: #ffbd2e; }
+    .tbar-dot.green { background: #28c840; }
+    .tbar-title { flex: 1; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--dim); }
+    .terminal-body {
+      padding: 28px 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 2;
+      min-height: 340px;
+    }
+    .t-prompt { color: var(--green); }
+    .t-cmd    { color: var(--text); }
+    .t-q      { color: #fbbf24; }
+    .t-dim    { color: var(--dim); }
+    .t-check  { color: var(--green); }
+    .t-uncheck{ color: var(--dim); }
+    .t-sel    { background: rgba(74,222,128,.12); padding: 0 4px; border-radius: 3px; }
+    .t-line   { display: block; }
+
+    /* animated cursor */
+    .t-cursor {
+      display: inline-block;
+      width: 8px; height: 16px;
+      background: var(--green);
+      vertical-align: middle;
+      animation: blink 1s step-start infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── APP GRID ─────────────────────────────────── */
+    .categories { margin-top: 60px; display: flex; flex-direction: column; gap: 48px; }
+    .cat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--dim);
+      text-transform: uppercase; letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .app-card {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      transition: border-color .2s, background .2s, transform .2s;
+      cursor: default;
+    }
+    .app-card:hover {
+      border-color: rgba(74,222,128,.3);
+      background: rgba(74,222,128,.04);
+      transform: translateY(-2px);
+    }
+    .app-icon { font-size: 22px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+    .app-info { min-width: 0; }
+    .app-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .app-desc { font-size: 12px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+
+    /* ── WHY ──────────────────────────────────────── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 60px;
+    }
+    .why-card {
+      padding: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+    }
+    .why-icon { font-size: 28px; margin-bottom: 16px; }
+    .why-card h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .why-card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+    /* ── COMPARISON ───────────────────────────────── */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 60px;
+      font-size: 14px;
+    }
+    .compare-table th {
+      padding: 14px 20px;
+      text-align: left;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+    }
+    .compare-table th.ours { color: var(--green); }
+    .compare-table td {
+      padding: 14px 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .compare-table tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+    .compare-table td:first-child { color: var(--text); font-weight: 500; }
+    .yes { color: var(--green); }
+    .no  { color: #f87171; }
+    .partial { color: #fbbf24; }
+
+    /* ── CTA ──────────────────────────────────────── */
+    .cta-section {
+      text-align: center;
+      padding: 120px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      width: 800px; height: 400px;
+      background: radial-gradient(ellipse, rgba(74,222,128,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .cta-section h2 { margin-bottom: 12px; }
+    .cta-section p { color: var(--muted); margin-bottom: 40px; font-size: 18px; max-width: 480px; margin-left: auto; margin-right: auto; margin-bottom: 40px; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--green); color: #050709;
+      padding: 14px 28px; border-radius: 8px;
+      font-weight: 600; font-size: 15px; text-decoration: none;
+      transition: opacity .2s;
+    }
+    .btn-primary:hover { opacity: .9; }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: none; border: 1px solid var(--border);
+      color: var(--text); padding: 14px 28px; border-radius: 8px;
+      font-weight: 500; font-size: 15px; text-decoration: none;
+      transition: border-color .2s;
+    }
+    .btn-outline:hover { border-color: var(--muted); }
+
+    /* ── FOOTER ───────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    footer p { font-size: 13px; color: var(--dim); }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── ANIMATIONS ──────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* scroll-reveal */
+    .reveal {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── MOBILE ───────────────────────────────────── */
+    @media (max-width: 640px) {
+      nav { padding: 16px 20px; }
+      .nav-links a:not(.btn-github) { display: none; }
+      section { padding: 72px 20px; }
+      .step { border-right: none; border-bottom: 1px solid var(--border); }
+      .step:last-child { border-bottom: none; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><span>~/</span>homelab-starter</a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#apps">Apps</a>
+    <a class="btn-github" href="https://github.com/moooosik/homelab-starter" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">Open source · Free forever</div>
+  <h1>Your own <em>Netflix, Google Drive,</em> and smart home hub.</h1>
+  <p class="hero-sub">homelab-starter sets up 28 self-hosted apps on your home server — one command, a simple checklist, and you're done. No config files. No cloud bills.</p>
+  <div class="command-block">
+    <code id="cmd">curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash</code>
+    <button class="copy-btn" id="copyBtn" onclick="copyCmd()">Copy</button>
+  </div>
+  <p class="hero-note">Runs on any Linux server · Debian, Ubuntu, Raspberry Pi</p>
+</header>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="strip-item"><div class="strip-dot"></div><strong>28 apps</strong> ready to install</div>
+  <div class="strip-item"><div class="strip-dot"></div>Works on <strong>any Linux server</strong></div>
+  <div class="strip-item"><div class="strip-dot"></div>Auto-generated <strong>passwords</strong></div>
+  <div class="strip-item"><div class="strip-dot"></div><strong>No cloud</strong> account required</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <p class="section-label">// how it works</p>
+  <h2>Three steps, then it's yours.</h2>
+  <p class="section-sub">No reading documentation. No editing config files. Just answer a few questions.</p>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Paste one command</h3>
+      <p>Open a terminal on your home server and paste the install command. That's it — homelab-starter checks that Docker is installed and offers to install it for you if not.</p>
+      <span class="step-tag">~30 seconds</span>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>Pick your apps</h3>
+      <p>A checklist appears. Scroll through 28 apps with short descriptions. Space bar to check, Enter to confirm. No configuration knowledge needed — sensible defaults are set for everything.</p>
+      <span class="step-tag">~2 minutes</span>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Bookmark your dashboard</h3>
+      <p>homelab-starter starts everything and prints the URL for each app. If you installed Homepage, it opens your dashboard link and suggests you bookmark it. Done.</p>
+      <span class="step-tag">~5 minutes total</span>
+    </div>
+  </div>
+
+  <!-- terminal demo -->
+  <div class="terminal-wrap reveal">
+    <div class="terminal-bar">
+      <div class="tbar-dot red"></div>
+      <div class="tbar-dot amber"></div>
+      <div class="tbar-dot green"></div>
+      <div class="tbar-title">homelab-starter</div>
+    </div>
+    <div class="terminal-body">
+      <span class="t-line"><span class="t-prompt">→</span> <span class="t-cmd">homelab-starter</span></span>
+      <span class="t-line">&nbsp;</span>
+      <span class="t-line"><span class="t-dim">Server IP detected: </span><span class="t-check">192.168.0.101</span></span>
+      <span class="t-line">&nbsp;</span>
+      <span class="t-line"><span class="t-q">? Configuration depth:</span></span>
+      <span class="t-line">&nbsp; <span class="t-dim">○</span> basic &nbsp;&nbsp;&nbsp;— defaults for everything</span>
+      <span class="t-line">&nbsp; <span class="t-check">●</span> <span class="t-sel">guided &nbsp;&nbsp;— prompts for key options</span></span>
+      <span class="t-line">&nbsp; <span class="t-dim">○</span> advanced — all options exposed</span>
+      <span class="t-line">&nbsp;</span>
+      <span class="t-line"><span class="t-q">? Select apps to install:</span> <span class="t-dim">(↑↓ navigate, space select, enter confirm)</span></span>
+      <span class="t-line">&nbsp; <span class="t-check">✓</span> Jellyfin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Free media server, no phone-home</span>
+      <span class="t-line">&nbsp; <span class="t-check">✓</span> Immich &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Self-hosted Google Photos</span>
+      <span class="t-line"><span class="t-sel">&nbsp; <span class="t-check">✓</span> Nextcloud &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Your own Dropbox + Office</span></span>
+      <span class="t-line">&nbsp; <span class="t-uncheck">○</span> Vaultwarden &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Password manager you own</span>
+      <span class="t-line">&nbsp; <span class="t-check">✓</span> Homepage &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Your homelab dashboard</span>
+      <span class="t-line">&nbsp; <span class="t-cursor"></span></span>
+    </div>
+  </div>
+</section>
+
+<!-- APPS -->
+<section id="apps" style="padding-top:0">
+  <p class="section-label">// 28 apps included</p>
+  <h2>Everything for your home server.</h2>
+  <p class="section-sub">From movies to smart home control — all running on your hardware, not someone else's cloud.</p>
+
+  <div class="categories reveal">
+
+    <div>
+      <p class="cat-label">Your digital life</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">🎬</span><div class="app-info"><div class="app-name">Jellyfin</div><div class="app-desc">Watch movies & shows anywhere. Free, no account.</div></div></div>
+        <div class="app-card"><span class="app-icon">📷</span><div class="app-info"><div class="app-name">Immich</div><div class="app-desc">Auto-backup every photo. Like Google Photos, but yours.</div></div></div>
+        <div class="app-card"><span class="app-icon">☁️</span><div class="app-info"><div class="app-name">Nextcloud</div><div class="app-desc">Files, calendar, contacts — your own Google Drive.</div></div></div>
+        <div class="app-card"><span class="app-icon">🔐</span><div class="app-info"><div class="app-name">Vaultwarden</div><div class="app-desc">Password manager you fully own. No subscription.</div></div></div>
+        <div class="app-card"><span class="app-icon">💰</span><div class="app-info"><div class="app-name">Actual Budget</div><div class="app-desc">Track money without giving data to a startup.</div></div></div>
+        <div class="app-card"><span class="app-icon">🎬</span><div class="app-info"><div class="app-name">Plex</div><div class="app-desc">Full-featured media server with TV apps included.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Smart home</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">🏠</span><div class="app-info"><div class="app-name">Home Assistant</div><div class="app-desc">Control every smart device. 3,000+ integrations, no cloud.</div></div></div>
+        <div class="app-card"><span class="app-icon">🛒</span><div class="app-info"><div class="app-name">Grocy</div><div class="app-desc">Pantry tracker and shopping list manager.</div></div></div>
+        <div class="app-card"><span class="app-icon">🍽️</span><div class="app-info"><div class="app-name">Mealie</div><div class="app-desc">Recipe box with meal planning and shopping export.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Network & access</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">🌐</span><div class="app-info"><div class="app-name">Caddy</div><div class="app-desc">Routes your domain to services. HTTPS automatic.</div></div></div>
+        <div class="app-card"><span class="app-icon">🦆</span><div class="app-info"><div class="app-name">DuckDNS</div><div class="app-desc">Free domain that always points to your home IP.</div></div></div>
+        <div class="app-card"><span class="app-icon">🔒</span><div class="app-info"><div class="app-name">Tailscale</div><div class="app-desc">Reach your server securely from anywhere.</div></div></div>
+        <div class="app-card"><span class="app-icon">🚫</span><div class="app-info"><div class="app-name">Pi-hole</div><div class="app-desc">Blocks ads for every device on your WiFi.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Files & documents</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">💾</span><div class="app-info"><div class="app-name">NAS Bundle</div><div class="app-desc">Network drive + browser-based file manager.</div></div></div>
+        <div class="app-card"><span class="app-icon">📄</span><div class="app-info"><div class="app-name">Paperless-ngx</div><div class="app-desc">Scan, tag, and search every paper document.</div></div></div>
+        <div class="app-card"><span class="app-icon">📑</span><div class="app-info"><div class="app-name">Stirling-PDF</div><div class="app-desc">Convert, merge, split PDFs — totally offline.</div></div></div>
+        <div class="app-card"><span class="app-icon">🎵</span><div class="app-info"><div class="app-name">Navidrome</div><div class="app-desc">Stream your music collection from any device.</div></div></div>
+        <div class="app-card"><span class="app-icon">📚</span><div class="app-info"><div class="app-name">Kavita</div><div class="app-desc">Read ebooks, manga, and comics with a built-in reader.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Security</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">🛡️</span><div class="app-info"><div class="app-name">CrowdSec</div><div class="app-desc">Auto-blocks hackers using shared threat intelligence.</div></div></div>
+        <div class="app-card"><span class="app-icon">🔑</span><div class="app-info"><div class="app-name">Authentik</div><div class="app-desc">One login screen for all your self-hosted apps.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Server tools</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">🏡</span><div class="app-info"><div class="app-name">Homepage</div><div class="app-desc">Your homelab dashboard — all apps in one place.</div></div></div>
+        <div class="app-card"><span class="app-icon">🐳</span><div class="app-info"><div class="app-name">Portainer</div><div class="app-desc">See and control all your containers in a web UI.</div></div></div>
+        <div class="app-card"><span class="app-icon">📋</span><div class="app-info"><div class="app-name">Dozzle</div><div class="app-desc">Read live container logs from the browser.</div></div></div>
+        <div class="app-card"><span class="app-icon">📊</span><div class="app-info"><div class="app-name">Beszel</div><div class="app-desc">CPU, RAM, disk usage charted over time.</div></div></div>
+        <div class="app-card"><span class="app-icon">⏱️</span><div class="app-info"><div class="app-name">Uptime Kuma</div><div class="app-desc">Alerts you when any service goes down.</div></div></div>
+        <div class="app-card"><span class="app-icon">👁️</span><div class="app-info"><div class="app-name">Changedetection.io</div><div class="app-desc">Alerts when any webpage changes.</div></div></div>
+        <div class="app-card"><span class="app-icon">🔄</span><div class="app-info"><div class="app-name">Watchtower</div><div class="app-desc">Keeps your apps updated automatically, every night.</div></div></div>
+        <div class="app-card"><span class="app-icon">💊</span><div class="app-info"><div class="app-name">Autoheal</div><div class="app-desc">Restarts crashed containers automatically.</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why" style="padding-top:0">
+  <p class="section-label">// why homelab-starter</p>
+  <h2>Built for humans, not sysadmins.</h2>
+  <p class="section-sub">No Cloudflare account required. No license tiers. No breaking upgrades.</p>
+  <div class="why-grid reveal">
+    <div class="why-card">
+      <div class="why-icon">⚡</div>
+      <h3>Works on any DNS provider</h3>
+      <p>Namecheap, Route53, Porkbun — no Cloudflare lock-in. Point your domain wherever it already lives.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🔑</div>
+      <h3>Passwords generated for you</h3>
+      <p>Every app that needs a secret key or database password gets a cryptographically secure one. No copy-pasting required.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🧩</div>
+      <h3>Your choice of reverse proxy</h3>
+      <p>Caddy is offered but optional. Skip it and apps are still accessible by IP. No tool-wide architecture lock-in.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">💚</div>
+      <h3>Fully open source, always free</h3>
+      <p>No Basic / Plus / Pro tiers. No membership wall. Every feature in the repo, forever.</p>
+    </div>
+  </div>
+
+  <table class="compare-table reveal">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th class="ours">homelab-starter</th>
+        <th>Deployrr</th>
+        <th>DockSTARTer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>curl | bash install</td><td class="yes">✓</td><td class="partial">Partial</td><td class="no">✗</td></tr>
+      <tr><td>Auto-install Docker</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td></tr>
+      <tr><td>Auto-generated secrets</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td></tr>
+      <tr><td>Works without Cloudflare</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Caddy / NPM / no proxy</td><td class="yes">Choice</td><td class="no">Traefik only</td><td class="partial">Partial</td></tr>
+      <tr><td>Fully open source</td><td class="yes">✓</td><td class="partial">Freemium</td><td class="yes">✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <p class="section-label" style="text-align:center">// get started</p>
+  <h2>Your server, your rules.</h2>
+  <p>Paste one line. Pick what you want. Walk away with a working homelab.</p>
+  <div class="command-block" style="margin:0 auto 32px;max-width:600px">
+    <code>curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash</code>
+    <button class="copy-btn" onclick="copyCmd()">Copy</button>
+  </div>
+  <div class="cta-btns">
+    <a href="https://github.com/moooosik/homelab-starter" class="btn-primary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      View on GitHub
+    </a>
+    <a href="https://github.com/moooosik/homelab-starter/blob/main/README.md" class="btn-outline" target="_blank" rel="noopener">Read the docs</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>homelab-starter · MIT License · Made by <a href="https://github.com/moooosik" target="_blank">moooosik</a></p>
+  <p><a href="https://github.com/moooosik/homelab-starter" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/moooosik/homelab-starter/issues" target="_blank">Issues</a></p>
+</footer>
+
+<script>
+  // Copy command
+  function copyCmd() {
+    const cmd = document.getElementById('cmd')?.textContent
+      || 'curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash';
+    navigator.clipboard.writeText(cmd).then(() => {
+      document.querySelectorAll('.copy-btn').forEach(b => {
+        b.textContent = 'Copied!';
+        b.classList.add('copied');
+        setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('copied'); }, 2000);
+      });
+    });
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.1 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
