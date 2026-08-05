@@ -158,6 +158,7 @@ def main(dry_run: bool) -> None:
         )
         _print_urls(selected_ids, server_ip, domain)
         _print_credentials(env_dict, selected_ids)
+        _write_connect_guide(selected_ids, server_ip)
         return
 
     # Deploy
@@ -173,6 +174,7 @@ def main(dry_run: bool) -> None:
 
     _print_urls(selected_ids, server_ip, domain)
     _print_credentials(env_dict, selected_ids)
+    _write_connect_guide(selected_ids, server_ip)
 
     if has_domain and domain:
         _print_domain_instructions(domain, selected_ids)
@@ -286,6 +288,44 @@ def _print_credentials(env: dict, selected_ids: list[str]) -> None:
         )
     )
     console.print()
+
+
+def _write_connect_guide(selected_ids: list[str], server_ip: str) -> None:
+    """Write CONNECT.md with per-app connection instructions for selected apps."""
+    sections = []
+    for app_id in selected_ids:
+        app = app_catalog.APPS[app_id]
+        steps = app.get("connect", [])
+        if not steps:
+            continue
+        port = app.get("port")
+        port_str = f"  •  port {port}" if port else ""
+        sections.append(f"## {app['name']}{port_str}\n")
+        for step in steps:
+            sections.append(f"- {step.format(SERVER_IP=server_ip)}\n")
+        sections.append("\n")
+
+    if not sections:
+        return
+
+    guide = (
+        "# Connection Guide\n\n"
+        "How to connect phones, desktop apps, and clients to each service.\n"
+        f"Your server IP: `{server_ip}`\n\n"
+        "---\n\n"
+        + "".join(sections)
+    )
+
+    guide_path = DEPLOY_DIR / "CONNECT.md"
+    guide_path.write_text(guide)
+    console.print(
+        Panel(
+            f"[bold]Connection guide[/bold] saved to [cyan]{guide_path}[/cyan]\n"
+            "Open it whenever you need to connect a new phone or device.",
+            border_style="dim",
+            expand=False,
+        )
+    )
 
 
 def _print_domain_instructions(domain: str, selected_ids: list[str]) -> None:

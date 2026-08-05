@@ -16,6 +16,11 @@ APPS: dict[str, dict] = {
         "port": 8080,
         "url_path": "",
         "watchtower_exclude": True,
+        "connect": [
+            "Mobile app (iOS/Android): Install Bitwarden → Settings → Self-hosted server → http://{SERVER_IP}:8080",
+            "Browser extension: Settings → Self-hosted server → http://{SERVER_IP}:8080",
+            "First use: create your account at http://{SERVER_IP}:8080",
+        ],
         "services": {
             "vaultwarden": {
                 "image": "vaultwarden/server:latest",
@@ -61,6 +66,12 @@ APPS: dict[str, dict] = {
         "guided_prompts": [
             {"key": "NEXTCLOUD_ADMIN_PASSWORD", "label": "Nextcloud admin password", "default": "", "secret": True},
         ],
+        "connect": [
+            "Mobile app (iOS/Android): Install Nextcloud → Add account → Server: http://{SERVER_IP}:8181",
+            "Desktop sync client: Add account → Server: http://{SERVER_IP}:8181",
+            "CalDAV (calendar sync): http://{SERVER_IP}:8181/remote.php/dav",
+            "CardDAV (contacts sync): http://{SERVER_IP}:8181/remote.php/dav",
+        ],
         "services": {
             "nextcloud": {
                 "image": "nextcloud:latest",
@@ -103,6 +114,11 @@ APPS: dict[str, dict] = {
         "port": 8384,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Install Syncthing on each device you want to sync",
+            "Find this server's Device ID at http://{SERVER_IP}:8384 → Actions → Show ID",
+            "On each device: Add remote device → paste the Device ID",
+        ],
         "services": {
             "syncthing": {
                 "image": "syncthing/syncthing:latest",
@@ -170,6 +186,12 @@ APPS: dict[str, dict] = {
         "port": 5232,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "iOS Calendar: Settings → Calendar → Accounts → Add Account → Other → CalDAV → Server: http://{SERVER_IP}:5232/dav.php",
+            "iOS Contacts: Settings → Contacts → Accounts → Add Account → Other → CardDAV → Server: http://{SERVER_IP}:5232/dav.php",
+            "Android: Install DAVx⁵ (free, F-Droid/Play) → Add account → URL: http://{SERVER_IP}:5232/dav.php",
+            "Thunderbird: Add CalDAV calendar → URL: http://{SERVER_IP}:5232/dav.php",
+        ],
         "services": {
             "baikal": {
                 "image": "ckulka/baikal:nginx",
@@ -199,6 +221,12 @@ APPS: dict[str, dict] = {
         "guided_prompts": [
             {"key": "MEDIA_PATH", "label": "Path to your media library", "default": "/mnt/media"},
         ],
+        "connect": [
+            "Mobile app (iOS/Android): Install Jellyfin → Add server → http://{SERVER_IP}:8096",
+            "Smart TV: Install Jellyfin app on your TV → Add server → http://{SERVER_IP}:8096",
+            "Infuse (Apple TV/iOS): Settings → Add Jellyfin → http://{SERVER_IP}:8096",
+            "Kodi: install the Jellyfin for Kodi add-on",
+        ],
         "services": {
             "jellyfin": {
                 "image": "jellyfin/jellyfin:latest",
@@ -227,6 +255,11 @@ APPS: dict[str, dict] = {
         "guided_prompts": [
             {"key": "MEDIA_PATH", "label": "Path to your media library", "default": "/mnt/media"},
             {"key": "PLEX_CLAIM", "label": "Plex claim token (from plex.tv/claim)", "default": "", "secret": True},
+        ],
+        "connect": [
+            "Sign in to your plex.tv account in any Plex app — your server appears automatically",
+            "Web player: http://{SERVER_IP}:32400/web",
+            "Note: a free plex.tv account is required",
         ],
         "services": {
             "plex": {
@@ -259,6 +292,10 @@ APPS: dict[str, dict] = {
         "watchtower_exclude": True,
         "guided_prompts": [
             {"key": "IMMICH_UPLOAD_PATH", "label": "Path for Immich uploads/library", "default": "/mnt/photos"},
+        ],
+        "connect": [
+            "Mobile app (iOS/Android): Install Immich → Server URL: http://{SERVER_IP}:2283",
+            "Enable auto-backup: in the app → Settings → turn on Background Backup",
         ],
         "services": {
             "immich-server": {
@@ -334,6 +371,12 @@ APPS: dict[str, dict] = {
         "guided_prompts": [
             {"key": "MUSIC_PATH", "label": "Path to your music library", "default": "/mnt/music"},
         ],
+        "connect": [
+            "Android: Symfonium or DSub → Add server (Subsonic) → http://{SERVER_IP}:4533",
+            "iOS: Substreamer or Finamp → Server: http://{SERVER_IP}:4533",
+            "Desktop: Sonixd → http://{SERVER_IP}:4533",
+            "Use the username and password you set in Navidrome's web UI",
+        ],
         "services": {
             "navidrome": {
                 "image": "deluan/navidrome:latest",
@@ -367,6 +410,10 @@ APPS: dict[str, dict] = {
         "guided_prompts": [
             {"key": "BOOKS_PATH", "label": "Path to your books/manga/comics library", "default": "/mnt/books"},
         ],
+        "connect": [
+            "Web UI: http://{SERVER_IP}:5001 (works on any device browser)",
+            "E-reader OPDS feed: http://{SERVER_IP}:5001/api/opds/{{your-api-key}} (find API key in Kavita → User Settings → 3rd party clients)",
+        ],
         "services": {
             "kavita": {
                 "image": "kizaing/kavita:latest",
@@ -394,6 +441,10 @@ APPS: dict[str, dict] = {
         "guided_prompts": [
             {"key": "AUDIOBOOKS_PATH", "label": "Path to your audiobooks", "default": "/mnt/audiobooks"},
             {"key": "PODCASTS_PATH", "label": "Path to your podcasts", "default": "/mnt/podcasts"},
+        ],
+        "connect": [
+            "Mobile app (iOS/Android): Install Audiobookshelf → Server URL: http://{SERVER_IP}:13378",
+            "Log in with your Audiobookshelf username and password",
         ],
         "services": {
             "audiobookshelf": {
@@ -610,6 +661,10 @@ APPS: dict[str, dict] = {
         "port": 3030,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Web UI: http://{SERVER_IP}:3030 — works from any browser on your network",
+            "Ollama API (for other apps): http://{SERVER_IP}:11434",
+        ],
         "services": {
             "ollama": {
                 "image": "ollama/ollama:latest",
@@ -645,6 +700,10 @@ APPS: dict[str, dict] = {
         "port": 8123,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Mobile app (iOS/Android): Install Home Assistant → Connect → http://{SERVER_IP}:8123",
+            "Remote access: pair with Tailscale or use Nabu Casa (paid cloud relay)",
+        ],
         "services": {
             "homeassistant": {
                 "image": "ghcr.io/home-assistant/home-assistant:stable",
@@ -775,6 +834,11 @@ APPS: dict[str, dict] = {
         "watchtower_exclude": False,
         "guided_prompts": [
             {"key": "TAILSCALE_AUTHKEY", "label": "Tailscale auth key (from tailscale.com/settings/keys)", "default": "", "secret": True},
+        ],
+        "connect": [
+            "Install Tailscale on each device (iOS, Android, Windows, Mac, Linux) from tailscale.com",
+            "Sign in with the same account — this server appears automatically as a node",
+            "Use the Tailscale IP to reach all your services from anywhere, no port forwarding needed",
         ],
         "services": {
             "tailscale": {
@@ -1087,6 +1151,11 @@ APPS: dict[str, dict] = {
         "url_path": "",
         "watchtower_exclude": False,
         # Auto-secret: GITEA_DB_PASSWORD
+        "connect": [
+            "Web UI: http://{SERVER_IP}:3080 — create your account here first",
+            "Git over HTTPS: git remote add origin http://{SERVER_IP}:3080/{{username}}/{{repo}}.git",
+            "Git over SSH: git remote add origin ssh://git@{SERVER_IP}:222/{{username}}/{{repo}}.git",
+        ],
         "services": {
             "gitea": {
                 "image": "gitea/gitea:latest",
@@ -1362,6 +1431,11 @@ APPS: dict[str, dict] = {
         "port": 8095,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Mobile app (iOS/Android): Install ntfy → Settings → Default server → http://{SERVER_IP}:8095",
+            "Subscribe or publish from any device: http://{SERVER_IP}:8095",
+            "Send a notification from a script: curl -d 'hello' http://{SERVER_IP}:8095/your-topic",
+        ],
         "services": {
             "ntfy": {
                 "image": "binwiederhier/ntfy:latest",
@@ -1387,6 +1461,11 @@ APPS: dict[str, dict] = {
         "url_path": "",
         "watchtower_exclude": False,
         # Auto-secret: MATRIX_REGISTRATION_SECRET
+        "connect": [
+            "Element web UI is at http://{SERVER_IP}:8880 — use this to create your account first",
+            "Element mobile (iOS/Android): Add account → Other → Homeserver: http://{SERVER_IP}:8448",
+            "Any Matrix client: set homeserver to http://{SERVER_IP}:8448",
+        ],
         "guided_prompts": [
             {
                 "key": "MATRIX_SERVER_NAME",
@@ -1439,6 +1518,10 @@ APPS: dict[str, dict] = {
         "url_path": "",
         "watchtower_exclude": False,
         # Auto-secret: MATTERMOST_DB_PASSWORD
+        "connect": [
+            "Desktop app: Add server → http://{SERVER_IP}:8065",
+            "Mobile app (iOS/Android): Install Mattermost → Add server → http://{SERVER_IP}:8065",
+        ],
         "services": {
             "mattermost": {
                 "image": "mattermost/mattermost-team-edition:latest",
