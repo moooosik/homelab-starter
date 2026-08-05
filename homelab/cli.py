@@ -157,6 +157,7 @@ def main(dry_run: bool) -> None:
             )
         )
         _print_urls(selected_ids, server_ip, domain)
+        _print_credentials(env_dict, selected_ids)
         return
 
     # Deploy
@@ -171,6 +172,7 @@ def main(dry_run: bool) -> None:
         sys.exit(1)
 
     _print_urls(selected_ids, server_ip, domain)
+    _print_credentials(env_dict, selected_ids)
 
     if has_domain and domain:
         _print_domain_instructions(domain, selected_ids)
@@ -237,6 +239,53 @@ def _print_urls(selected_ids: list[str], server_ip: str, domain: str) -> None:
         "[bold green]Done![/bold green] All services are starting. "
         "It may take a minute for each UI to become available."
     )
+
+
+def _print_credentials(env: dict, selected_ids: list[str]) -> None:
+    """Print admin login credentials for apps that have auto-generated passwords."""
+    # Maps app_id → (app display name, login username/email, env key for password)
+    _ADMIN_LOGINS: list[tuple[str, str, str, str]] = [
+        ("paperless",  "Paperless-ngx",  "admin",                "PAPERLESS_ADMIN_PASSWORD"),
+        ("nextcloud",  "Nextcloud",       "admin",                "NEXTCLOUD_ADMIN_PASSWORD"),
+        ("grafana",    "Grafana",         "admin",                "GRAFANA_ADMIN_PASSWORD"),
+        ("bookstack",  "BookStack",       "admin@example.com",    "BOOKSTACK_ROOT_PASSWORD"),
+        ("miniflux",   "Miniflux",        "admin",                "MINIFLUX_ADMIN_PASSWORD"),
+    ]
+
+    rows = [
+        (app_name, username, env[env_key])
+        for app_id, app_name, username, env_key in _ADMIN_LOGINS
+        if app_id in selected_ids and env_key in env
+    ]
+
+    lines: list[str] = [
+        f"All passwords are saved in [bold cyan]{DEPLOY_DIR / '.env'}[/bold cyan]",
+        "[dim]Keep that file private — it contains every secret.[/dim]",
+    ]
+
+    if rows:
+        lines.append("")
+        lines.append("[bold]Admin login credentials:[/bold]")
+        for app_name, username, password in rows:
+            lines.append(f"  [bold]{app_name:<18}[/bold] {username}  /  [yellow]{password}[/yellow]")
+
+    if "authentik" in selected_ids:
+        lines.append("")
+        lines.append(
+            "  [bold]Authentik[/bold]            check logs after first boot:\n"
+            "                       [dim]docker logs authentik-worker | grep 'Generated admin password'[/dim]"
+        )
+
+    console.print()
+    console.print(
+        Panel(
+            "\n".join(lines),
+            title="[bold]Your credentials",
+            border_style="yellow",
+            expand=False,
+        )
+    )
+    console.print()
 
 
 def _print_domain_instructions(domain: str, selected_ids: list[str]) -> None:
