@@ -3,7 +3,7 @@
 # Usage: curl -fsSL https://raw.githubusercontent.com/brianchan97hk/homelab-starter/main/install.sh | bash
 set -e
 
-REPO="https://github.com/brianchan97hk/homelab-starter.git"
+REPO="https://github.com/moooosik/homelab-starter.git"
 INSTALL_DIR="/tmp/homelab-starter-install"
 
 echo ""

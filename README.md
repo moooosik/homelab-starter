@@ -7,13 +7,13 @@ Interactive CLI that bootstraps a full Docker Compose homelab stack from zero â€
 SSH into your homelab server, then:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/brianchan97hk/homelab-starter/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash
 ```
 
 Or with pipx:
 
 ```bash
-pipx install git+https://github.com/brianchan97hk/homelab-starter.git
+pipx install git+https://github.com/moooosik/homelab-starter.git
 homelab-starter
 ```
 
