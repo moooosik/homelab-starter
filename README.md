@@ -71,38 +71,111 @@ homelab-starter
 
 ## App catalog
 
-28 apps across 12 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set.
+52 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 52 choices.
 
-| # | App | Category | Default port | Description |
-|---|-----|----------|-------------|-------------|
-| 1 | **Vaultwarden** | Security | 8080 | Self-hosted Bitwarden — password manager you fully own |
-| 2 | **Caddy** | Networking | 80 / 443 | Automatic HTTPS reverse proxy |
-| 3 | **CrowdSec** | Security | — | Collaborative IP blocklist + intrusion prevention |
-| 4 | **Watchtower** | Maintenance | — | Auto-pulls updated container images nightly |
-| 5 | **Autoheal** | Maintenance | — | Restarts unhealthy containers automatically |
-| 6 | **Actual Budget** | Finance | 5006 | Local-first personal budgeting app |
-| 7 | **DuckDNS** | Networking | — | Free dynamic DNS — keeps your domain pointing to your home IP |
-| 8 | **Tailscale** | Networking | — | Zero-config VPN — access your server from anywhere |
-| 9 | **Paperless-ngx** | Documents | 8000 | Scan, OCR, tag, and search your physical documents |
-| 10 | **Dozzle** | Monitoring | 8888 | Live container log browser in the browser |
-| 11 | **Portainer** | Management | 9000 | Visual Docker dashboard — deploy and manage containers |
-| 12 | **Grocy** | Home | 9283 | Pantry tracker and shopping list manager |
-| 13 | **Mealie** | Home | 9925 | Recipe manager with meal planning and shopping export |
-| 14 | **Pi-hole** | Networking | 8053 | Network-wide DNS ad blocking for every device on your WiFi |
-| 15 | **Home Assistant** | Home | 8123 | Local smart home hub — 3,000+ integrations, no cloud |
-| 16 | **Uptime Kuma** | Monitoring | 3001 | Self-hosted uptime monitoring with status page |
-| 17 | **Jellyfin** | Media | 8096 | Free media server — movies, shows, music. No account required |
-| 18 | **Plex** | Media | 32400 | Full-featured media server with mobile and TV apps |
-| 19 | **Immich** | Photos | 2283 | Self-hosted Google Photos — auto-backup, face recognition |
-| 20 | **Nextcloud** | Files | 8181 | Your own Google Drive — files, calendar, contacts, video calls |
-| 21 | **Homepage** | Dashboard | 3000 | App launcher dashboard with live service status tiles |
-| 22 | **Stirling-PDF** | Documents | 8085 | Convert, merge, split, OCR PDFs — entirely local |
-| 23 | **Authentik** | Security | 9001 | Self-hosted SSO + MFA — one login for all your apps |
-| 24 | **Navidrome** | Media | 4533 | Subsonic-compatible music streaming server |
-| 25 | **Changedetection.io** | Monitoring | 5000 | Alerts when any webpage changes |
-| 26 | **Beszel** | Monitoring | 8090 | Lightweight server metrics — CPU, RAM, disk charted over time |
-| 27 | **Kavita** | Media | 5001 | Ebooks, manga, and comics server with a built-in reader |
-| 28 | **NAS Bundle** | Files | 8082 | Samba network share + FileBrowser web UI |
+### Your Digital Life
+| App | Port | Description |
+|-----|------|-------------|
+| **Vaultwarden** | 8080 | Self-hosted Bitwarden — password manager you fully own |
+| **Actual Budget** | 5006 | Local-first personal finance and budgeting |
+| **Nextcloud** | 8181 | Your own Google Drive — files, calendar, contacts, video calls |
+| **Syncthing** | 8384 | Continuous file sync between all your devices — no cloud middleman |
+| **NAS Bundle** (Samba + FileBrowser) | 8082 | Network file share + browser-based file manager |
+
+### Media
+| App | Port | Description |
+|-----|------|-------------|
+| **Jellyfin** | 8096 | Free media server — movies, shows, music. No account required |
+| **Plex** | 32400 | Full-featured media server with mobile and TV apps |
+| **Immich** | 2283 | Self-hosted Google Photos — auto-backup, face recognition |
+| **Navidrome** | 4533 | Subsonic-compatible music streaming server |
+| **Kavita** | 5001 | Ebooks, manga, and comics server with a built-in reader |
+| **Audiobookshelf** | 13378 | Audiobook and podcast server with a mobile app |
+
+### Media Automation
+| App | Port | Description |
+|-----|------|-------------|
+| **Sonarr** | 8989 | Automatic TV show downloads — monitors and grabs new episodes |
+| **Radarr** | 7878 | Automatic movie downloads — monitors releases and quality |
+| **Prowlarr** | 9696 | Indexer manager — one place to configure all your torrent/usenet sources |
+| **qBittorrent** | 8091 | Torrent client with a web UI |
+| **Jellyseerr** | 5055 | Request system for Jellyfin — family members can request shows and movies |
+| **Bazarr** | 6767 | Automatic subtitle downloader for Sonarr and Radarr |
+
+### AI
+| App | Port | Description |
+|-----|------|-------------|
+| **Ollama + Open WebUI** | 3030 | Run LLMs locally (Llama 3, Mistral, Gemma) with a ChatGPT-style interface |
+
+### Smart Home
+| App | Port | Description |
+|-----|------|-------------|
+| **Home Assistant** | 8123 | Local smart home hub — 3,000+ integrations, no cloud |
+| **Grocy** | 9283 | Pantry tracker and household shopping list manager |
+| **Mealie** | 9925 | Recipe manager with meal planning and shopping export |
+
+### Networking
+| App | Port | Description |
+|-----|------|-------------|
+| **Caddy** | 80 / 443 | Automatic HTTPS reverse proxy |
+| **DuckDNS** | — | Free dynamic DNS — keeps your domain pointing to your home IP |
+| **Tailscale** | — | Zero-config VPN — access your server from anywhere |
+| **Pi-hole** | 8053 | Network-wide DNS ad blocking for every device on your WiFi |
+| **AdGuard Home** | 8054 | DNS-based ad and tracker blocking — alternative to Pi-hole |
+
+### Security
+| App | Port | Description |
+|-----|------|-------------|
+| **CrowdSec** | — | Collaborative IP blocklist + intrusion prevention |
+| **Authentik** | 9001 | Self-hosted SSO + MFA — one login for all your apps |
+
+### Documents
+| App | Port | Description |
+|-----|------|-------------|
+| **Paperless-ngx** | 8000 | Scan, OCR, tag, and full-text search your physical documents |
+| **Stirling-PDF** | 8085 | Convert, merge, split, compress, and OCR PDFs — entirely local |
+
+### Productivity
+| App | Port | Description |
+|-----|------|-------------|
+| **n8n** | 5678 | Workflow automation — connect your apps like Zapier, but self-hosted |
+| **Gitea** | 3080 | Self-hosted GitHub — private Git repos, issues, pull requests |
+| **BookStack** | 6875 | Wiki and knowledge base — write and organize your documentation |
+| **Vikunja** | 3456 | To-do lists and project management — self-hosted Todoist |
+| **Planka** | 1337 | Kanban boards — self-hosted Trello |
+| **Miniflux** | 8070 | Minimalist RSS feed reader |
+| **Hoarder** | 3210 | AI-powered bookmark manager — save links, auto-tag, full-text search |
+
+### Communication
+| App | Port | Description |
+|-----|------|-------------|
+| **Matrix + Element** | 8448 / 8880 | End-to-end encrypted self-hosted messaging — your own Signal/Slack |
+| **Mattermost** | 8065 | Team messaging and file sharing — self-hosted Slack |
+| **ntfy** | 8095 | Push notification server — send alerts to your phone from any script |
+
+### Monitoring
+| App | Port | Description |
+|-----|------|-------------|
+| **Uptime Kuma** | 3001 | Self-hosted uptime monitoring with status page |
+| **Dozzle** | 8888 | Live container log browser in the browser |
+| **Beszel** | 8090 | Lightweight server metrics — CPU, RAM, disk charted over time |
+| **Changedetection.io** | 5000 | Alerts when any webpage changes |
+| **Scrutiny** | 8083 | Hard drive health monitoring (S.M.A.R.T.) — know before a drive dies |
+| **Grafana + Prometheus** | 3002 | Metrics dashboards + data collection — visualize anything |
+| **Netdata** | 19999 | Real-time system metrics — CPU, RAM, disk, network, per-process |
+| **Healthchecks** | 8020 | Cron job monitor — alerts you when a backup or scheduled task didn't run |
+
+### Management
+| App | Port | Description |
+|-----|------|-------------|
+| **Portainer** | 9000 | Visual Docker management dashboard — deploy, inspect, manage containers |
+| **Homepage** | 3000 | App launcher dashboard with live service status tiles |
+
+### Maintenance
+| App | Port | Description |
+|-----|------|-------------|
+| **Watchtower** | — | Auto-pulls updated container images nightly |
+| **Autoheal** | — | Automatically restarts unhealthy containers |
 
 ---
 
@@ -138,6 +211,9 @@ Apps that get auto-generated secrets:
 - Nextcloud database + admin password (if not provided in guided mode)
 - Paperless-ngx database password, secret key, and admin password
 - Authentik database password and secret key
+- Gitea, BookStack, Vikunja, Planka, Miniflux, Mattermost — database passwords
+- Grafana admin password, Healthchecks secret key
+- Hoarder and Matrix registration secrets
 
 ---
 
@@ -154,6 +230,7 @@ Watchtower is always included. It checks for new container image versions every 
 | Authentik | Auth provider config breaks on schema changes |
 | Immich | Frequent breaking changes between major versions |
 | Paperless-ngx | Migration scripts must be run manually |
+| n8n | Workflow engine breaks on major version bumps |
 
 To update an excluded app safely:
 ```bash

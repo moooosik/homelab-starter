@@ -57,30 +57,50 @@ def main(dry_run: bool) -> None:
     if config_depth is None:
         sys.exit(0)
 
-    choices = [
-        questionary.Choice(title=label, value=app_id)
-        for label, app_id in app_catalog.checklist_choices()
+    # Step 1: pick categories
+    category_choices = [
+        questionary.Choice(
+            title=f"{cat}  ({len(app_catalog.CATEGORIES[cat])} apps)",
+            value=cat,
+        )
+        for cat in app_catalog.CATEGORIES
     ]
-    selected_ids: list[str] = questionary.checkbox(
-        "Select apps to install:",
-        choices=choices,
+    selected_categories: list[str] = questionary.checkbox(
+        "Which categories do you want?",
+        choices=category_choices,
         instruction="(↑↓ navigate, space select, enter confirm)",
     ).ask()
-    if selected_ids is None:
+    if selected_categories is None:
         sys.exit(0)
+
+    if not selected_categories:
+        console.print("[yellow]No categories selected. Nothing to deploy.[/yellow]")
+        sys.exit(0)
+
+    # Step 2: pick apps within each category
+    selected_ids: list[str] = []
+    for cat in selected_categories:
+        app_ids_in_cat = app_catalog.CATEGORIES[cat]
+        cat_choices = [
+            questionary.Choice(
+                title=f"{app_catalog.APPS[aid]['name']:<26} — {app_catalog.APPS[aid]['description']}",
+                value=aid,
+                checked=True,
+            )
+            for aid in app_ids_in_cat
+        ]
+        picked: list[str] = questionary.checkbox(
+            f"{cat}:",
+            choices=cat_choices,
+            instruction="(space toggle, enter confirm)",
+        ).ask()
+        if picked is None:
+            sys.exit(0)
+        selected_ids.extend(picked)
 
     if not selected_ids:
         console.print("[yellow]No apps selected. Nothing to deploy.[/yellow]")
         sys.exit(0)
-
-    # Caddy — offer if not already selected
-    if "caddy" not in selected_ids:
-        want_caddy = questionary.confirm(
-            "Caddy (reverse proxy): routes a custom domain to your services and handles HTTPS automatically. Add it?",
-            default=False,
-        ).ask()
-        if want_caddy:
-            selected_ids.append("caddy")
 
     # Watchtower — always include (silently)
     if "watchtower" not in selected_ids:
@@ -125,7 +145,7 @@ def main(dry_run: bool) -> None:
     if "caddy" in selected_ids:
         _write_caddyfile(selected_ids, domain or server_ip)
 
-    compose_builder.write_files(compose_dict, env_dict, DEPLOY_DIR)
+    compose_builder.write_files(compose_dict, env_dict, DEPLOY_DIR, selected_ids)
 
     if dry_run:
         console.print(

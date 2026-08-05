@@ -10,6 +10,7 @@ from homelab.apps import APPS
 
 
 _AUTO_SECRETS = {
+    # Original apps
     "IMMICH_DB_PASSWORD": 32,
     "NEXTCLOUD_DB_PASSWORD": 32,
     "NEXTCLOUD_ADMIN_PASSWORD": 16,
@@ -18,6 +19,22 @@ _AUTO_SECRETS = {
     "PAPERLESS_ADMIN_PASSWORD": 16,
     "AUTHENTIK_DB_PASSWORD": 32,
     "AUTHENTIK_SECRET_KEY": 50,
+    # New apps
+    "GITEA_DB_PASSWORD": 32,
+    "BOOKSTACK_DB_PASSWORD": 32,
+    "BOOKSTACK_ROOT_PASSWORD": 16,
+    "VIKUNJA_DB_PASSWORD": 32,
+    "VIKUNJA_JWT_SECRET": 50,
+    "PLANKA_DB_PASSWORD": 32,
+    "PLANKA_SECRET_KEY": 50,
+    "MINIFLUX_DB_PASSWORD": 32,
+    "MINIFLUX_ADMIN_PASSWORD": 16,
+    "GRAFANA_ADMIN_PASSWORD": 16,
+    "HEALTHCHECKS_SECRET_KEY": 50,
+    "HOARDER_SECRET": 50,
+    "HOARDER_MEILI_KEY": 50,
+    "MATRIX_REGISTRATION_SECRET": 50,
+    "MATTERMOST_DB_PASSWORD": 32,
 }
 
 
@@ -56,7 +73,7 @@ def _fill_auto_secrets(env: dict) -> None:
             env[key] = secrets.token_urlsafe(length)
 
 
-def write_files(compose: dict, env: dict, deploy_dir: Path) -> None:
+def write_files(compose: dict, env: dict, deploy_dir: Path, selected_ids: list[str] | None = None) -> None:
     deploy_dir.mkdir(parents=True, exist_ok=True)
     compose_path = deploy_dir / "docker-compose.yml"
     env_path = deploy_dir / ".env"
@@ -67,3 +84,8 @@ def write_files(compose: dict, env: dict, deploy_dir: Path) -> None:
     with open(env_path, "w") as f:
         for key, value in env.items():
             f.write(f"{key}={value}\n")
+
+    if selected_ids:
+        for app_id in selected_ids:
+            for filename, content in APPS[app_id].get("side_files", {}).items():
+                (deploy_dir / filename).write_text(content)
