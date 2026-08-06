@@ -2,7 +2,9 @@
 
 > **One command. Pick your apps. Walk away with a working home server.**
 
-homelab-starter is an interactive CLI that bootstraps a full self-hosted stack on any Linux machine. It handles Docker installation, generates all config files, creates secure passwords automatically, and deploys everything with a single `docker compose up`. No YAML editing. No copy-pasting passwords. No reading three different guides.
+Homelab Starter sets up your home server so you can run your own apps — password manager, media server, photo backup, smart home hub, and more — without any technical knowledge required.
+
+Answer a few questions, pick the apps you want from a menu, and it handles everything else: installing the software it needs, creating secure passwords automatically, and getting your apps running. No config files to edit. No guides to read. No passwords to copy-paste.
 
 [![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/moooosik)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=github&logoColor=white)](https://github.com/sponsors/moooosik)
@@ -12,20 +14,13 @@ homelab-starter is an interactive CLI that bootstraps a full self-hosted stack o
 
 ## Quick start
 
-SSH into your home server and run:
+Open a terminal on your home server and paste this:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash
 ```
 
-That's it. The installer checks for Python and Docker, installs either if missing, then launches the interactive setup.
-
-**Alternative — install with pipx (keeps it isolated):**
-
-```bash
-pipx install git+https://github.com/moooosik/homelab-starter.git
-homelab-starter
-```
+That's it. It checks what your server needs, installs anything missing, then walks you through the setup.
 
 ---
 

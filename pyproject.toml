@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "homelab-starter"
 version = "0.1.0"
-description = "One command to bootstrap a full self-hosted Docker Compose homelab stack"
+description = "Set up your home server apps in minutes — pick what you want, it handles the rest"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
