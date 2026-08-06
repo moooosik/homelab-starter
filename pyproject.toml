@@ -5,14 +5,50 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "homelab-starter"
 version = "0.1.0"
-description = "Interactive CLI to bootstrap a Docker Compose homelab stack"
+description = "One command to bootstrap a full self-hosted Docker Compose homelab stack"
+readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    { name = "moooosik" }
+]
+keywords = [
+    "homelab",
+    "self-hosted",
+    "docker",
+    "docker-compose",
+    "cli",
+    "devops",
+    "raspberry-pi",
+    "linux",
+    "selfhosted",
+    "home-server",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: System Administrators",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: System :: Installation/Setup",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
 dependencies = [
     "click>=8.1",
     "questionary>=2.0",
     "rich>=13.0",
     "PyYAML>=6.0",
 ]
+
+[project.urls]
+Homepage = "https://moooosik.github.io/homelab-starter"
+Repository = "https://github.com/moooosik/homelab-starter"
+"Bug Tracker" = "https://github.com/moooosik/homelab-starter/issues"
 
 [project.scripts]
 homelab-starter = "homelab.cli:main"
