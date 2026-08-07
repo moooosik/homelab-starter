@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # homelab-starter installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/brianchan97hk/homelab-starter/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash
 set -e
 
 REPO="https://github.com/moooosik/homelab-starter.git"
