@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>homelab-starter — Your own Netflix, Google Drive, and smart home. One command.</title>
-  <meta name="description" content="Set up Jellyfin, Nextcloud, Vaultwarden, and 25 more apps on your home server — one command, no config files, no cloud bills." />
+  <meta name="description" content="Set up Jellyfin, Nextcloud, Vaultwarden, and 50 more apps on your home server — one command, no config files, no cloud bills." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -81,8 +81,6 @@
       position: relative;
       overflow: hidden;
     }
-
-    /* dot grid background */
     .hero::before {
       content: '';
       position: absolute; inset: 0;
@@ -91,7 +89,6 @@
       mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
       pointer-events: none;
     }
-    /* green glow */
     .hero::after {
       content: '';
       position: absolute;
@@ -100,7 +97,6 @@
       top: 50%; left: 50%; transform: translate(-50%, -60%);
       pointer-events: none;
     }
-
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
       background: rgba(74,222,128,.08); border: 1px solid rgba(74,222,128,.2);
@@ -116,7 +112,6 @@
       animation: pulse 2s ease infinite;
     }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-
     h1 {
       font-family: 'Syne', sans-serif;
       font-size: clamp(40px, 7vw, 80px);
@@ -128,7 +123,6 @@
       animation: fadeUp .6s .1s ease both;
     }
     h1 em { font-style: normal; color: var(--green); }
-
     .hero-sub {
       font-size: clamp(17px, 2.5vw, 20px);
       color: var(--muted);
@@ -137,7 +131,6 @@
       margin-bottom: 44px;
       animation: fadeUp .6s .2s ease both;
     }
-
     .command-block {
       display: flex; align-items: center; gap: 0;
       background: var(--bg2); border: 1px solid var(--border);
@@ -168,11 +161,7 @@
     }
     .copy-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
     .copy-btn.copied { color: var(--green); }
-
-    .hero-note {
-      font-size: 13px; color: var(--dim);
-      animation: fadeUp .6s .4s ease both;
-    }
+    .hero-note { font-size: 13px; color: var(--dim); animation: fadeUp .6s .4s ease both; }
 
     /* ── STRIP ───────────────────────────────────── */
     .strip {
@@ -217,25 +206,15 @@
       border-radius: var(--r);
       overflow: hidden;
     }
-    .step {
-      padding: 40px 36px;
-      background: var(--card);
-      border-right: 1px solid var(--border);
-      position: relative;
-    }
+    .step { padding: 40px 36px; background: var(--card); border-right: 1px solid var(--border); }
     .step:last-child { border-right: none; }
     .step-num {
       font-family: 'JetBrains Mono', monospace;
       font-size: 48px; font-weight: 500;
       color: rgba(74,222,128,.15);
-      line-height: 1;
-      margin-bottom: 20px;
+      line-height: 1; margin-bottom: 20px;
     }
-    .step h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 20px; font-weight: 700;
-      margin-bottom: 10px;
-    }
+    .step h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 10px; }
     .step p { color: var(--muted); font-size: 15px; line-height: 1.7; }
     .step-tag {
       display: inline-block; margin-top: 20px;
@@ -265,11 +244,11 @@
     .tbar-dot.green { background: #28c840; }
     .tbar-title { flex: 1; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--dim); }
     .terminal-body {
-      padding: 28px 28px;
+      padding: 28px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
       line-height: 2;
-      min-height: 340px;
+      min-height: 360px;
     }
     .t-prompt { color: var(--green); }
     .t-cmd    { color: var(--text); }
@@ -279,13 +258,9 @@
     .t-uncheck{ color: var(--dim); }
     .t-sel    { background: rgba(74,222,128,.12); padding: 0 4px; border-radius: 3px; }
     .t-line   { display: block; }
-
-    /* animated cursor */
     .t-cursor {
-      display: inline-block;
-      width: 8px; height: 16px;
-      background: var(--green);
-      vertical-align: middle;
+      display: inline-block; width: 8px; height: 16px;
+      background: var(--green); vertical-align: middle;
       animation: blink 1s step-start infinite;
     }
     @keyframes blink { 50% { opacity: 0; } }
@@ -306,17 +281,11 @@
     .app-card {
       display: flex; align-items: flex-start; gap: 12px;
       padding: 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--r);
       transition: border-color .2s, background .2s, transform .2s;
       cursor: default;
     }
-    .app-card:hover {
-      border-color: rgba(74,222,128,.3);
-      background: rgba(74,222,128,.04);
-      transform: translateY(-2px);
-    }
+    .app-card:hover { border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.04); transform: translateY(-2px); }
     .app-icon { font-size: 22px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
     .app-info { min-width: 0; }
     .app-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -324,42 +293,19 @@
 
     /* ── WHY ──────────────────────────────────────── */
     .why-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-top: 60px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px; margin-top: 60px;
     }
-    .why-card {
-      padding: 28px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-    }
+    .why-card { padding: 28px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); }
     .why-icon { font-size: 28px; margin-bottom: 16px; }
     .why-card h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 8px; }
     .why-card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
 
     /* ── COMPARISON ───────────────────────────────── */
-    .compare-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 60px;
-      font-size: 14px;
-    }
-    .compare-table th {
-      padding: 14px 20px;
-      text-align: left;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-    }
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 60px; font-size: 14px; }
+    .compare-table th { padding: 14px 20px; text-align: left; background: var(--bg2); border: 1px solid var(--border); font-family: 'Syne', sans-serif; font-size: 13px; }
     .compare-table th.ours { color: var(--green); }
-    .compare-table td {
-      padding: 14px 20px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
+    .compare-table td { padding: 14px 20px; border: 1px solid var(--border); color: var(--muted); }
     .compare-table tr:nth-child(even) td { background: rgba(255,255,255,.02); }
     .compare-table td:first-child { color: var(--text); font-weight: 500; }
     .yes { color: var(--green); }
@@ -367,22 +313,14 @@
     .partial { color: #fbbf24; }
 
     /* ── CTA ──────────────────────────────────────── */
-    .cta-section {
-      text-align: center;
-      padding: 120px 24px;
-      position: relative;
-      overflow: hidden;
-    }
+    .cta-section { text-align: center; padding: 120px 24px; position: relative; overflow: hidden; }
     .cta-section::before {
-      content: '';
-      position: absolute;
-      width: 800px; height: 400px;
+      content: ''; position: absolute; width: 800px; height: 400px;
       background: radial-gradient(ellipse, rgba(74,222,128,.07) 0%, transparent 70%);
-      top: 50%; left: 50%; transform: translate(-50%, -50%);
-      pointer-events: none;
+      top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
     }
     .cta-section h2 { margin-bottom: 12px; }
-    .cta-section p { color: var(--muted); margin-bottom: 40px; font-size: 18px; max-width: 480px; margin-left: auto; margin-right: auto; margin-bottom: 40px; }
+    .cta-section p { color: var(--muted); font-size: 18px; max-width: 480px; margin: 0 auto 40px; }
     .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
@@ -403,26 +341,16 @@
 
     /* ── FOOTER ───────────────────────────────────── */
     footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 40px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px;
+      border-top: 1px solid var(--border); padding: 32px 40px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
     }
     footer p { font-size: 13px; color: var(--dim); }
     footer a { color: var(--muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
 
     /* ── ANIMATIONS ──────────────────────────────── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* scroll-reveal */
-    .reveal {
-      opacity: 0; transform: translateY(20px);
-      transition: opacity .6s ease, transform .6s ease;
-    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
     .reveal.visible { opacity: 1; transform: none; }
 
     /* ── MOBILE ───────────────────────────────────── */
@@ -455,7 +383,7 @@
 <header class="hero">
   <div class="hero-badge">Open source · Free forever</div>
   <h1>Your own <em>Netflix, Google Drive,</em> and smart home hub.</h1>
-  <p class="hero-sub">homelab-starter sets up 28 self-hosted apps on your home server — one command, a simple checklist, and you're done. No config files. No cloud bills.</p>
+  <p class="hero-sub">homelab-starter sets up 53 self-hosted apps on your home server — one command, a simple checklist, and you're done. No config files. No cloud bills.</p>
   <div class="command-block">
     <code id="cmd">curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash</code>
     <button class="copy-btn" id="copyBtn" onclick="copyCmd()">Copy</button>
@@ -465,7 +393,7 @@
 
 <!-- STRIP -->
 <div class="strip">
-  <div class="strip-item"><div class="strip-dot"></div><strong>28 apps</strong> ready to install</div>
+  <div class="strip-item"><div class="strip-dot"></div><strong>53 apps</strong> across 13 categories</div>
   <div class="strip-item"><div class="strip-dot"></div>Works on <strong>any Linux server</strong></div>
   <div class="strip-item"><div class="strip-dot"></div>Auto-generated <strong>passwords</strong></div>
   <div class="strip-item"><div class="strip-dot"></div><strong>No cloud</strong> account required</div>
@@ -480,19 +408,19 @@
     <div class="step">
       <div class="step-num">01</div>
       <h3>Paste one command</h3>
-      <p>Open a terminal on your home server and paste the install command. That's it — homelab-starter checks that Docker is installed and offers to install it for you if not.</p>
+      <p>Open a terminal on your home server and paste the install command. homelab-starter checks that Docker is installed and offers to install it automatically if it's missing.</p>
       <span class="step-tag">~30 seconds</span>
     </div>
     <div class="step">
       <div class="step-num">02</div>
-      <h3>Pick your apps</h3>
-      <p>A checklist appears. Scroll through 28 apps with short descriptions. Space bar to check, Enter to confirm. No configuration knowledge needed — sensible defaults are set for everything.</p>
+      <h3>Pick your apps by category</h3>
+      <p>Choose which categories interest you — Media, Smart Home, Productivity, and more. Then pick exactly which apps within each. 53 apps total, but you only ever see the ones you care about.</p>
       <span class="step-tag">~2 minutes</span>
     </div>
     <div class="step">
       <div class="step-num">03</div>
       <h3>Bookmark your dashboard</h3>
-      <p>homelab-starter starts everything and prints the URL for each app. If you installed Homepage, it opens your dashboard link and suggests you bookmark it. Done.</p>
+      <p>homelab-starter starts everything, prints the URL for each app, and saves a connection guide showing how to link your phone or desktop to each service. Done.</p>
       <span class="step-tag">~5 minutes total</span>
     </div>
   </div>
@@ -510,17 +438,16 @@
       <span class="t-line">&nbsp;</span>
       <span class="t-line"><span class="t-dim">Server IP detected: </span><span class="t-check">192.168.0.101</span></span>
       <span class="t-line">&nbsp;</span>
-      <span class="t-line"><span class="t-q">? Configuration depth:</span></span>
-      <span class="t-line">&nbsp; <span class="t-dim">○</span> basic &nbsp;&nbsp;&nbsp;— defaults for everything</span>
-      <span class="t-line">&nbsp; <span class="t-check">●</span> <span class="t-sel">guided &nbsp;&nbsp;— prompts for key options</span></span>
-      <span class="t-line">&nbsp; <span class="t-dim">○</span> advanced — all options exposed</span>
+      <span class="t-line"><span class="t-q">? Which categories do you want?</span> <span class="t-dim">(space select, enter confirm)</span></span>
+      <span class="t-line">&nbsp; <span class="t-check">✓</span> Your Digital Life &nbsp;&nbsp;<span class="t-dim">(6 apps)</span></span>
+      <span class="t-line"><span class="t-sel">&nbsp; <span class="t-check">✓</span> Media &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-dim">(6 apps)</span></span></span>
+      <span class="t-line">&nbsp; <span class="t-uncheck">○</span> Media Automation &nbsp;&nbsp;<span class="t-dim">(6 apps)</span></span>
+      <span class="t-line">&nbsp; <span class="t-check">✓</span> Smart Home &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-dim">(3 apps)</span></span>
       <span class="t-line">&nbsp;</span>
-      <span class="t-line"><span class="t-q">? Select apps to install:</span> <span class="t-dim">(↑↓ navigate, space select, enter confirm)</span></span>
-      <span class="t-line">&nbsp; <span class="t-check">✓</span> Jellyfin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Free media server, no phone-home</span>
-      <span class="t-line">&nbsp; <span class="t-check">✓</span> Immich &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Self-hosted Google Photos</span>
-      <span class="t-line"><span class="t-sel">&nbsp; <span class="t-check">✓</span> Nextcloud &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Your own Dropbox + Office</span></span>
-      <span class="t-line">&nbsp; <span class="t-uncheck">○</span> Vaultwarden &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Password manager you own</span>
-      <span class="t-line">&nbsp; <span class="t-check">✓</span> Homepage &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Your homelab dashboard</span>
+      <span class="t-line"><span class="t-q">? Media:</span> <span class="t-dim">(space toggle, enter confirm)</span></span>
+      <span class="t-line">&nbsp; <span class="t-check">✓</span> Jellyfin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Free media server, no account</span>
+      <span class="t-line">&nbsp; <span class="t-check">✓</span> Immich &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Self-hosted Google Photos</span>
+      <span class="t-line">&nbsp; <span class="t-uncheck">○</span> Plex &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— Media server with TV apps</span>
       <span class="t-line">&nbsp; <span class="t-cursor"></span></span>
     </div>
   </div>
@@ -528,7 +455,7 @@
 
 <!-- APPS -->
 <section id="apps" style="padding-top:0">
-  <p class="section-label">// 28 apps included</p>
+  <p class="section-label">// 53 apps included</p>
   <h2>Everything for your home server.</h2>
   <p class="section-sub">From movies to smart home control — all running on your hardware, not someone else's cloud.</p>
 
@@ -537,12 +464,43 @@
     <div>
       <p class="cat-label">Your digital life</p>
       <div class="apps-grid">
-        <div class="app-card"><span class="app-icon">🎬</span><div class="app-info"><div class="app-name">Jellyfin</div><div class="app-desc">Watch movies & shows anywhere. Free, no account.</div></div></div>
-        <div class="app-card"><span class="app-icon">📷</span><div class="app-info"><div class="app-name">Immich</div><div class="app-desc">Auto-backup every photo. Like Google Photos, but yours.</div></div></div>
-        <div class="app-card"><span class="app-icon">☁️</span><div class="app-info"><div class="app-name">Nextcloud</div><div class="app-desc">Files, calendar, contacts — your own Google Drive.</div></div></div>
         <div class="app-card"><span class="app-icon">🔐</span><div class="app-info"><div class="app-name">Vaultwarden</div><div class="app-desc">Password manager you fully own. No subscription.</div></div></div>
         <div class="app-card"><span class="app-icon">💰</span><div class="app-info"><div class="app-name">Actual Budget</div><div class="app-desc">Track money without giving data to a startup.</div></div></div>
-        <div class="app-card"><span class="app-icon">🎬</span><div class="app-info"><div class="app-name">Plex</div><div class="app-desc">Full-featured media server with TV apps included.</div></div></div>
+        <div class="app-card"><span class="app-icon">☁️</span><div class="app-info"><div class="app-name">Nextcloud</div><div class="app-desc">Files, calendar, contacts — your own Google Drive.</div></div></div>
+        <div class="app-card"><span class="app-icon">🔄</span><div class="app-info"><div class="app-name">Syncthing</div><div class="app-desc">Sync files between all your devices. No cloud needed.</div></div></div>
+        <div class="app-card"><span class="app-icon">📅</span><div class="app-info"><div class="app-name">Baikal</div><div class="app-desc">Calendar and contacts server — syncs to any phone app.</div></div></div>
+        <div class="app-card"><span class="app-icon">💾</span><div class="app-info"><div class="app-name">NAS Bundle</div><div class="app-desc">Network drive + browser-based file manager.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Media</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">🎬</span><div class="app-info"><div class="app-name">Jellyfin</div><div class="app-desc">Watch movies & shows anywhere. Free, no account.</div></div></div>
+        <div class="app-card"><span class="app-icon">📺</span><div class="app-info"><div class="app-name">Plex</div><div class="app-desc">Full-featured media server with TV apps included.</div></div></div>
+        <div class="app-card"><span class="app-icon">📷</span><div class="app-info"><div class="app-name">Immich</div><div class="app-desc">Auto-backup every photo. Like Google Photos, but yours.</div></div></div>
+        <div class="app-card"><span class="app-icon">🎵</span><div class="app-info"><div class="app-name">Navidrome</div><div class="app-desc">Stream your music collection from any device.</div></div></div>
+        <div class="app-card"><span class="app-icon">📚</span><div class="app-info"><div class="app-name">Kavita</div><div class="app-desc">Read ebooks, manga, and comics with a built-in reader.</div></div></div>
+        <div class="app-card"><span class="app-icon">🎧</span><div class="app-info"><div class="app-name">Audiobookshelf</div><div class="app-desc">Audiobook and podcast server with a mobile app.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Media automation</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">📡</span><div class="app-info"><div class="app-name">Sonarr</div><div class="app-desc">Auto-downloads TV shows — grabs new episodes for you.</div></div></div>
+        <div class="app-card"><span class="app-icon">🎞️</span><div class="app-info"><div class="app-name">Radarr</div><div class="app-desc">Auto-downloads movies and monitors for better quality.</div></div></div>
+        <div class="app-card"><span class="app-icon">🔍</span><div class="app-info"><div class="app-name">Prowlarr</div><div class="app-desc">Manages all your torrent and usenet sources in one place.</div></div></div>
+        <div class="app-card"><span class="app-icon">⬇️</span><div class="app-info"><div class="app-name">qBittorrent</div><div class="app-desc">Torrent client with a web UI.</div></div></div>
+        <div class="app-card"><span class="app-icon">🎭</span><div class="app-info"><div class="app-name">Jellyseerr</div><div class="app-desc">Let family request shows and movies through a nice UI.</div></div></div>
+        <div class="app-card"><span class="app-icon">🌍</span><div class="app-info"><div class="app-name">Bazarr</div><div class="app-desc">Auto-downloads subtitles for your media library.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">AI</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">🤖</span><div class="app-info"><div class="app-name">Ollama + Open WebUI</div><div class="app-desc">Run AI models locally (Llama, Mistral) with a ChatGPT-style interface.</div></div></div>
       </div>
     </div>
 
@@ -556,43 +514,79 @@
     </div>
 
     <div>
-      <p class="cat-label">Network & access</p>
+      <p class="cat-label">Networking</p>
       <div class="apps-grid">
         <div class="app-card"><span class="app-icon">🌐</span><div class="app-info"><div class="app-name">Caddy</div><div class="app-desc">Routes your domain to services. HTTPS automatic.</div></div></div>
         <div class="app-card"><span class="app-icon">🦆</span><div class="app-info"><div class="app-name">DuckDNS</div><div class="app-desc">Free domain that always points to your home IP.</div></div></div>
         <div class="app-card"><span class="app-icon">🔒</span><div class="app-info"><div class="app-name">Tailscale</div><div class="app-desc">Reach your server securely from anywhere.</div></div></div>
         <div class="app-card"><span class="app-icon">🚫</span><div class="app-info"><div class="app-name">Pi-hole</div><div class="app-desc">Blocks ads for every device on your WiFi.</div></div></div>
-      </div>
-    </div>
-
-    <div>
-      <p class="cat-label">Files & documents</p>
-      <div class="apps-grid">
-        <div class="app-card"><span class="app-icon">💾</span><div class="app-info"><div class="app-name">NAS Bundle</div><div class="app-desc">Network drive + browser-based file manager.</div></div></div>
-        <div class="app-card"><span class="app-icon">📄</span><div class="app-info"><div class="app-name">Paperless-ngx</div><div class="app-desc">Scan, tag, and search every paper document.</div></div></div>
-        <div class="app-card"><span class="app-icon">📑</span><div class="app-info"><div class="app-name">Stirling-PDF</div><div class="app-desc">Convert, merge, split PDFs — totally offline.</div></div></div>
-        <div class="app-card"><span class="app-icon">🎵</span><div class="app-info"><div class="app-name">Navidrome</div><div class="app-desc">Stream your music collection from any device.</div></div></div>
-        <div class="app-card"><span class="app-icon">📚</span><div class="app-info"><div class="app-name">Kavita</div><div class="app-desc">Read ebooks, manga, and comics with a built-in reader.</div></div></div>
+        <div class="app-card"><span class="app-icon">🛡️</span><div class="app-info"><div class="app-name">AdGuard Home</div><div class="app-desc">DNS-based ad and tracker blocking — Pi-hole alternative.</div></div></div>
       </div>
     </div>
 
     <div>
       <p class="cat-label">Security</p>
       <div class="apps-grid">
-        <div class="app-card"><span class="app-icon">🛡️</span><div class="app-info"><div class="app-name">CrowdSec</div><div class="app-desc">Auto-blocks hackers using shared threat intelligence.</div></div></div>
+        <div class="app-card"><span class="app-icon">🔰</span><div class="app-info"><div class="app-name">CrowdSec</div><div class="app-desc">Auto-blocks hackers using shared threat intelligence.</div></div></div>
         <div class="app-card"><span class="app-icon">🔑</span><div class="app-info"><div class="app-name">Authentik</div><div class="app-desc">One login screen for all your self-hosted apps.</div></div></div>
       </div>
     </div>
 
     <div>
-      <p class="cat-label">Server tools</p>
+      <p class="cat-label">Documents</p>
       <div class="apps-grid">
-        <div class="app-card"><span class="app-icon">🏡</span><div class="app-info"><div class="app-name">Homepage</div><div class="app-desc">Your homelab dashboard — all apps in one place.</div></div></div>
-        <div class="app-card"><span class="app-icon">🐳</span><div class="app-info"><div class="app-name">Portainer</div><div class="app-desc">See and control all your containers in a web UI.</div></div></div>
+        <div class="app-card"><span class="app-icon">📄</span><div class="app-info"><div class="app-name">Paperless-ngx</div><div class="app-desc">Scan, tag, and search every paper document.</div></div></div>
+        <div class="app-card"><span class="app-icon">📑</span><div class="app-info"><div class="app-name">Stirling-PDF</div><div class="app-desc">Convert, merge, split PDFs — totally offline.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Productivity</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">⚙️</span><div class="app-info"><div class="app-name">n8n</div><div class="app-desc">Workflow automation — connect your apps like Zapier, self-hosted.</div></div></div>
+        <div class="app-card"><span class="app-icon">🐙</span><div class="app-info"><div class="app-name">Gitea</div><div class="app-desc">Your own private GitHub — code, issues, pull requests.</div></div></div>
+        <div class="app-card"><span class="app-icon">📖</span><div class="app-info"><div class="app-name">BookStack</div><div class="app-desc">Wiki and knowledge base for your docs and notes.</div></div></div>
+        <div class="app-card"><span class="app-icon">✅</span><div class="app-info"><div class="app-name">Vikunja</div><div class="app-desc">To-do lists and project management — self-hosted Todoist.</div></div></div>
+        <div class="app-card"><span class="app-icon">📋</span><div class="app-info"><div class="app-name">Planka</div><div class="app-desc">Kanban boards — self-hosted Trello.</div></div></div>
+        <div class="app-card"><span class="app-icon">📰</span><div class="app-info"><div class="app-name">Miniflux</div><div class="app-desc">Minimalist RSS reader — follow any site without an account.</div></div></div>
+        <div class="app-card"><span class="app-icon">🔖</span><div class="app-info"><div class="app-name">Hoarder</div><div class="app-desc">AI-powered bookmark manager with auto-tagging and full-text search.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Communication</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">💬</span><div class="app-info"><div class="app-name">Matrix + Element</div><div class="app-desc">End-to-end encrypted messaging — your own Signal.</div></div></div>
+        <div class="app-card"><span class="app-icon">💼</span><div class="app-info"><div class="app-name">Mattermost</div><div class="app-desc">Team messaging and file sharing — self-hosted Slack.</div></div></div>
+        <div class="app-card"><span class="app-icon">📣</span><div class="app-info"><div class="app-name">ntfy</div><div class="app-desc">Push notifications from any script to your phone.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Monitoring</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">⏱️</span><div class="app-info"><div class="app-name">Uptime Kuma</div><div class="app-desc">Alerts you when any service goes down.</div></div></div>
         <div class="app-card"><span class="app-icon">📋</span><div class="app-info"><div class="app-name">Dozzle</div><div class="app-desc">Read live container logs from the browser.</div></div></div>
         <div class="app-card"><span class="app-icon">📊</span><div class="app-info"><div class="app-name">Beszel</div><div class="app-desc">CPU, RAM, disk usage charted over time.</div></div></div>
-        <div class="app-card"><span class="app-icon">⏱️</span><div class="app-info"><div class="app-name">Uptime Kuma</div><div class="app-desc">Alerts you when any service goes down.</div></div></div>
         <div class="app-card"><span class="app-icon">👁️</span><div class="app-info"><div class="app-name">Changedetection.io</div><div class="app-desc">Alerts when any webpage changes.</div></div></div>
+        <div class="app-card"><span class="app-icon">💽</span><div class="app-info"><div class="app-name">Scrutiny</div><div class="app-desc">Hard drive health monitoring — know before a drive dies.</div></div></div>
+        <div class="app-card"><span class="app-icon">📈</span><div class="app-info"><div class="app-name">Grafana + Prometheus</div><div class="app-desc">Metrics dashboards — visualize anything on your server.</div></div></div>
+        <div class="app-card"><span class="app-icon">🌡️</span><div class="app-info"><div class="app-name">Netdata</div><div class="app-desc">Real-time CPU, RAM, disk, and network per-process.</div></div></div>
+        <div class="app-card"><span class="app-icon">🏥</span><div class="app-info"><div class="app-name">Healthchecks</div><div class="app-desc">Alerts when a backup or scheduled task didn't run.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Management</p>
+      <div class="apps-grid">
+        <div class="app-card"><span class="app-icon">🐳</span><div class="app-info"><div class="app-name">Portainer</div><div class="app-desc">See and control all your containers in a web UI.</div></div></div>
+        <div class="app-card"><span class="app-icon">🏡</span><div class="app-info"><div class="app-name">Homepage</div><div class="app-desc">Your homelab dashboard — all apps in one place.</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="cat-label">Maintenance (always included)</p>
+      <div class="apps-grid">
         <div class="app-card"><span class="app-icon">🔄</span><div class="app-info"><div class="app-name">Watchtower</div><div class="app-desc">Keeps your apps updated automatically, every night.</div></div></div>
         <div class="app-card"><span class="app-icon">💊</span><div class="app-info"><div class="app-name">Autoheal</div><div class="app-desc">Restarts crashed containers automatically.</div></div></div>
       </div>
@@ -618,9 +612,9 @@
       <p>Every app that needs a secret key or database password gets a cryptographically secure one. No copy-pasting required.</p>
     </div>
     <div class="why-card">
-      <div class="why-icon">🧩</div>
-      <h3>Your choice of reverse proxy</h3>
-      <p>Caddy is offered but optional. Skip it and apps are still accessible by IP. No tool-wide architecture lock-in.</p>
+      <div class="why-icon">📱</div>
+      <h3>Connection guide included</h3>
+      <p>After setup, a personalized guide tells you exactly how to connect your phone or desktop to each service you installed.</p>
     </div>
     <div class="why-card">
       <div class="why-icon">💚</div>
@@ -643,6 +637,8 @@
       <tr><td>Auto-install Docker</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td></tr>
       <tr><td>Auto-generated secrets</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td></tr>
       <tr><td>Works without Cloudflare</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Category-by-category selection</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td></tr>
+      <tr><td>Per-app connection guide</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td></tr>
       <tr><td>Caddy / NPM / no proxy</td><td class="yes">Choice</td><td class="no">Traefik only</td><td class="partial">Partial</td></tr>
       <tr><td>Fully open source</td><td class="yes">✓</td><td class="partial">Freemium</td><td class="yes">✓</td></tr>
     </tbody>
@@ -674,11 +670,10 @@
 <!-- FOOTER -->
 <footer>
   <p>homelab-starter · MIT License · Made by <a href="https://github.com/moooosik" target="_blank">moooosik</a></p>
-  <p><a href="https://github.com/moooosik/homelab-starter" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/moooosik/homelab-starter/issues" target="_blank">Issues</a> &nbsp;·&nbsp; <a href="https://ko-fi.com/moooosik" target="_blank">Ko-fi</a></p>
+  <p><a href="https://github.com/moooosik/homelab-starter" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/moooosik/homelab-starter/discussions" target="_blank">Discussions</a> &nbsp;·&nbsp; <a href="https://github.com/moooosik/homelab-starter/issues" target="_blank">Issues</a> &nbsp;·&nbsp; <a href="https://ko-fi.com/moooosik" target="_blank">Ko-fi</a></p>
 </footer>
 
 <script>
-  // Copy command
   function copyCmd() {
     const cmd = document.getElementById('cmd')?.textContent
       || 'curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash';
@@ -691,7 +686,6 @@
     });
   }
 
-  // Scroll reveal
   const observer = new IntersectionObserver(
     entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
     { threshold: 0.1 }
