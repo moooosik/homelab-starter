@@ -1,4 +1,5 @@
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -51,7 +52,7 @@ def _offer_install_docker() -> None:
         # Re-exec this process inside the docker group so docker commands work immediately
         # without requiring the user to log out and back in.
         if os.getuid() != 0:
-            os.execvp("sg", ["sg", "docker", "-c", " ".join(sys.argv)])
+            os.execvp("sg", ["sg", "docker", "-c", shlex.join(sys.argv)])
 
     console.print("[green]Docker installed.[/green]\n")
 

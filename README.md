@@ -210,6 +210,8 @@ Apps that get auto-generated secrets:
 - Gitea, BookStack, Vikunja, Planka, Miniflux, Mattermost — database passwords
 - Grafana admin password, Healthchecks secret key
 - Hoarder and Matrix registration secrets
+- Pi-hole web admin password
+- NAS Bundle (Samba) share password
 
 ---
 
