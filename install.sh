@@ -29,10 +29,11 @@ else
 fi
 
 # Install via pip (prefer pipx for isolation)
+PINNED_REF="v0.1.1"
 if command -v pipx &>/dev/null; then
-    pipx install "git+${REPO}" --force --quiet
+    pipx install "git+${REPO}@${PINNED_REF}" --force --quiet
     homelab-starter "$@"
-elif pip3 install "git+${REPO}" --quiet --user 2>/dev/null; then
+elif pip3 install "git+${REPO}@${PINNED_REF}" --quiet --user 2>/dev/null; then
     # Try common user bin locations
     for bin in "$HOME/.local/bin" "$HOME/.local/Scripts"; do
         if [ -f "$bin/homelab-starter" ]; then
@@ -44,7 +45,7 @@ elif pip3 install "git+${REPO}" --quiet --user 2>/dev/null; then
 else
     # Fallback: clone and run in-place
     rm -rf "$INSTALL_DIR"
-    git clone --depth=1 "$REPO" "$INSTALL_DIR" --quiet
+    git clone --depth=1 --branch "$PINNED_REF" "$REPO" "$INSTALL_DIR" --quiet
     cd "$INSTALL_DIR"
     pip3 install -e . --quiet
     homelab-starter "$@"

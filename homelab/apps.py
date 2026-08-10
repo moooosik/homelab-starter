@@ -1658,15 +1658,6 @@ APPS: dict[str, dict] = {
         "port": 8083,
         "url_path": "",
         "watchtower_exclude": False,
-        # guided_prompts are informational; device list is configured post-deploy inside the container.
-        # For customisation, add additional /dev/sdX entries to the devices list in the compose file.
-        "guided_prompts": [
-            {
-                "key": "SCRUTINY_DRIVES",
-                "label": "Drives to monitor (comma-separated, e.g. /dev/sda,/dev/sdb)",
-                "default": "/dev/sda",
-            },
-        ],
         "services": {
             "scrutiny": {
                 "image": "ghcr.io/analogj/scrutiny:master-omnibus",

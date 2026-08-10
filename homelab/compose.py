@@ -1,7 +1,7 @@
 """Build and write a merged docker-compose.yml + .env from selected app entries."""
 
+import os
 import secrets
-import socket
 from pathlib import Path
 
 import yaml
@@ -35,6 +35,8 @@ _AUTO_SECRETS = {
     "HOARDER_MEILI_KEY": 50,
     "MATRIX_REGISTRATION_SECRET": 50,
     "MATTERMOST_DB_PASSWORD": 32,
+    "PIHOLE_PASSWORD": 16,
+    "NAS_PASSWORD": 16,
 }
 
 
@@ -47,7 +49,8 @@ def build(selected_ids: list[str], server_ip: str, user_config: dict) -> tuple[d
     """
     services: dict = {}
     volumes: dict = {}
-    env: dict = {"TZ": "America/Denver", "SERVER_IP": server_ip}
+    tz = _detect_tz()
+    env: dict = {"TZ": tz, "SERVER_IP": server_ip}
 
     for app_id in selected_ids:
         app = APPS[app_id]
@@ -67,6 +70,20 @@ def build(selected_ids: list[str], server_ip: str, user_config: dict) -> tuple[d
     return compose, env
 
 
+def _detect_tz() -> str:
+    tz_file = Path("/etc/timezone")
+    if tz_file.exists():
+        tz = tz_file.read_text().strip()
+        if tz:
+            return tz
+    localtime = Path("/etc/localtime")
+    if localtime.is_symlink():
+        target = str(localtime.resolve())
+        if "/zoneinfo/" in target:
+            return target.split("/zoneinfo/", 1)[1]
+    return "UTC"
+
+
 def _fill_auto_secrets(env: dict) -> None:
     for key, length in _AUTO_SECRETS.items():
         if key not in env or not env[key]:
@@ -81,9 +98,11 @@ def write_files(compose: dict, env: dict, deploy_dir: Path, selected_ids: list[s
     with open(compose_path, "w") as f:
         yaml.dump(compose, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
-    with open(env_path, "w") as f:
+    fd = os.open(env_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with open(fd, "w") as f:
         for key, value in env.items():
-            f.write(f"{key}={value}\n")
+            safe_value = str(value).replace("\n", "").replace("\r", "")
+            f.write(f"{key}={safe_value}\n")
 
     if selected_ids:
         for app_id in selected_ids:

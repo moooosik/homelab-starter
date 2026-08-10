@@ -1,0 +1,57 @@
+name: App request
+description: Request a new app be added to the catalog
+labels: ["app-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Requesting an app? Great. Fill this in and we'll assess whether it fits the catalog.
+
+  - type: input
+    id: app-name
+    attributes:
+      label: App name
+      placeholder: e.g. Actual Budget
+    validations:
+      required: true
+
+  - type: input
+    id: docker-image
+    attributes:
+      label: Docker image
+      placeholder: e.g. actualbudget/actual-server:latest
+    validations:
+      required: true
+
+  - type: input
+    id: port
+    attributes:
+      label: Default web UI port
+      placeholder: e.g. 5006
+    validations:
+      required: true
+
+  - type: input
+    id: category
+    attributes:
+      label: Suggested category
+      placeholder: "One of: Your Digital Life, Media, Media Automation, AI, Smart Home, Networking, Security, Documents, Productivity, Communication, Monitoring, Management, Maintenance"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What does it do?
+      description: One or two sentences, written for a non-technical user.
+      placeholder: e.g. Local-first budgeting app — tracks spending and income without any cloud account.
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Required configuration
+      description: What env vars or volume mounts does it need? Link to the Docker Hub / GHCR page or docs.
+    validations:
+      required: false

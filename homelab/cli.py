@@ -1,5 +1,6 @@
 """Main interactive CLI flow for homelab-starter."""
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -191,11 +192,15 @@ def _write_caddyfile(selected_ids: list[str], host: str) -> None:
         port = app.get("port")
         if port is None:
             continue
-        name = app["name"].lower().replace(" ", "-").replace("(", "").replace(")", "")
+        name = re.sub(r"[^a-z0-9]+", "-", app["name"].lower()).strip("-")
         lines.append(f"{name}.{host} {{")
-        # Find the first service name for the upstream
         first_service = next(iter(app["services"]))
-        lines.append(f"    reverse_proxy {first_service}:{port}")
+        svc = app["services"][first_service]
+        if svc.get("network_mode") == "host":
+            upstream = f"localhost:{port}"
+        else:
+            upstream = f"{first_service}:{port}"
+        lines.append(f"    reverse_proxy {upstream}")
         lines.append("}")
         lines.append("")
 

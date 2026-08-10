@@ -1,0 +1,58 @@
+name: Bug report
+description: Something isn't working
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Fill in as much as you can — the more detail, the faster we can fix it.
+
+  - type: input
+    id: os
+    attributes:
+      label: OS / distro
+      placeholder: e.g. Ubuntu 24.04, Debian 12, Raspberry Pi OS 64-bit
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: e.g. 3.11.9
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: homelab-starter version
+      placeholder: e.g. 0.1.1  (run `homelab-starter --version` or check pyproject.toml)
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run homelab-starter
+        2. Select ...
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error output or logs
+      description: Paste the full error message or relevant terminal output.
+      render: shell
