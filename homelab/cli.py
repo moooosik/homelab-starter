@@ -331,6 +331,13 @@ def _print_credentials(env: dict, selected_ids: list[str]) -> None:
         for app_name, username, password in rows:
             lines.append(f"  [bold]{app_name:<18}[/bold] {username}  /  [yellow]{password}[/yellow]")
 
+    if "nas" in selected_ids:
+        lines.append("")
+        lines.append(
+            "  [bold]FileBrowser[/bold]          admin  /  [yellow]admin[/yellow]"
+            "  [dim](change immediately at :8082 > Settings > User management)[/dim]"
+        )
+
     if "authentik" in selected_ids:
         lines.append("")
         lines.append(

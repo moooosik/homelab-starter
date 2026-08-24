@@ -196,3 +196,53 @@ def test_no_port_conflicts():
             f"Port {port} is used by both '{ports[port]}' and '{app_id}'"
         )
         ports[port] = app_id
+
+
+def test_scrutiny_drives_empty_falls_back_to_default():
+    compose, env = build(["scrutiny"], "10.0.0.1", {"SCRUTINY_DRIVES": ""})
+    assert compose["services"]["scrutiny"]["devices"] == ["/dev/sda"]
+    assert env["SCRUTINY_DRIVES"] == "/dev/sda"
+
+
+def test_scrutiny_drives_whitespace_falls_back_to_default():
+    compose, env = build(["scrutiny"], "10.0.0.1", {"SCRUTINY_DRIVES": "   "})
+    assert compose["services"]["scrutiny"]["devices"] == ["/dev/sda"]
+    assert env["SCRUTINY_DRIVES"] == "/dev/sda"
+
+
+def test_scrutiny_drives_strips_whitespace_around_entries():
+    compose, _ = build(["scrutiny"], "10.0.0.1", {"SCRUTINY_DRIVES": " /dev/sda , /dev/sdb "})
+    assert compose["services"]["scrutiny"]["devices"] == ["/dev/sda", "/dev/sdb"]
+
+
+def test_db_services_have_healthchecks():
+    """Guard: every postgres/redis/mariadb/mysql service must declare a healthcheck."""
+    from homelab.apps import APPS
+    db_images = ("postgres", "redis", "mariadb", "mysql")
+    missing = []
+    for app_id, app in APPS.items():
+        for svc_name, svc in app["services"].items():
+            img = svc.get("image", "")
+            if any(db in img for db in db_images) and "healthcheck" not in svc:
+                missing.append(f"{app_id}/{svc_name} ({img})")
+    assert not missing, f"DB services without healthcheck: {missing}"
+
+
+def test_app_services_use_condition_depends_on():
+    """Guard: depends_on referencing a DB service must use condition: service_healthy."""
+    from homelab.apps import APPS
+    db_images = ("postgres", "redis", "mariadb", "mysql")
+    violations = []
+    for app_id, app in APPS.items():
+        db_svc_names = {
+            svc_name
+            for svc_name, svc in app["services"].items()
+            if any(db in svc.get("image", "") for db in db_images)
+        }
+        for svc_name, svc in app["services"].items():
+            dep = svc.get("depends_on")
+            if isinstance(dep, list):
+                for d in dep:
+                    if d in db_svc_names:
+                        violations.append(f"{app_id}/{svc_name} depends on {d} without service_healthy")
+    assert not violations, f"List-form depends_on on DB services: {violations}"
