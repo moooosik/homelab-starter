@@ -43,6 +43,10 @@ APPS: dict[str, dict] = {
         "port": 5006,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:5006 — create a new budget file on first visit",
+            "Mobile: use the Actual Budget web app in your phone browser at http://{SERVER_IP}:5006",
+        ],
         "services": {
             "actual": {
                 "image": "actualbudget/actual-server:latest",
@@ -148,6 +152,12 @@ APPS: dict[str, dict] = {
         "port": 8082,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "File browser UI: open http://{SERVER_IP}:8082 — login: admin / admin (change immediately)",
+            "Windows SMB: open File Explorer, type \\\\{SERVER_IP}\\nas in the address bar",
+            "macOS SMB: Finder > Go > Connect to Server > smb://{SERVER_IP}/nas",
+            "Linux SMB: mount -t cifs //{SERVER_IP}/nas /mnt/point -o username=homelab",
+        ],
         "guided_prompts": [
             {"key": "NAS_PATH", "label": "Path to share as NAS storage", "default": "/mnt/nas"},
             {"key": "NAS_USER", "label": "SMB share username", "default": "nas"},
@@ -821,6 +831,11 @@ APPS: dict[str, dict] = {
         "port": 80,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Edit ~/homelab-starter/Caddyfile to set up your subdomains — stubs are pre-generated",
+            "Reload config after changes: docker exec caddy caddy reload --config /etc/caddy/Caddyfile",
+            "Caddy auto-provisions HTTPS certificates when your domain DNS is pointed at this server",
+        ],
         "services": {
             "caddy": {
                 "image": "caddy:latest",
@@ -908,6 +923,11 @@ APPS: dict[str, dict] = {
         "port": 8053,
         "url_path": "/admin",
         "watchtower_exclude": False,
+        "connect": [
+            "Admin UI: http://{SERVER_IP}:8053/admin — login with your Pi-hole password",
+            "To block ads on a device: set its DNS server to {SERVER_IP} in your router or device network settings",
+            "To block ads network-wide: set your router's DNS to {SERVER_IP} (check your router admin for 'DNS server' setting)",
+        ],
         "guided_prompts": [
             {"key": "PIHOLE_PASSWORD", "label": "Pi-hole web admin password", "default": "admin", "secret": True},
         ],
@@ -941,6 +961,11 @@ APPS: dict[str, dict] = {
         "port": 8054,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Setup wizard runs on first visit: http://{SERVER_IP}:8054 — follow the prompts",
+            "After setup the dashboard moves to http://{SERVER_IP}:8054",
+            "Point your router or devices' DNS to {SERVER_IP} to start blocking ads network-wide",
+        ],
         "services": {
             "adguardhome": {
                 "image": "adguard/adguardhome:latest",
@@ -998,6 +1023,11 @@ APPS: dict[str, dict] = {
         "port": 9001,
         "url_path": "/if/user/",
         "watchtower_exclude": True,
+        "connect": [
+            "Open http://{SERVER_IP}:9001/if/flow/initial-setup/ to set the admin password",
+            "Admin panel: http://{SERVER_IP}:9001/if/admin/",
+            "To protect an app: Admin > Applications > Create > add a proxy provider pointing to the app's internal URL",
+        ],
         "services": {
             "authentik-server": {
                 "image": "ghcr.io/goauthentik/server:latest",
@@ -1254,6 +1284,10 @@ APPS: dict[str, dict] = {
         "port": 6875,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:6875 — login: admin@example.com / see credentials panel above",
+            "Change the admin email: Users > Admin > Edit",
+        ],
         # Auto-secrets: BOOKSTACK_DB_PASSWORD, BOOKSTACK_ROOT_PASSWORD
         "services": {
             "bookstack": {
@@ -1299,6 +1333,10 @@ APPS: dict[str, dict] = {
         "port": 3456,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:3456 — register a new account on first visit",
+            "Mobile: install the Vikunja app or use the web UI in your mobile browser",
+        ],
         # Auto-secrets: VIKUNJA_DB_PASSWORD, VIKUNJA_JWT_SECRET
         "services": {
             "vikunja": {
@@ -1343,6 +1381,9 @@ APPS: dict[str, dict] = {
         "port": 1337,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:1337 — register the first account (it becomes admin)",
+        ],
         # Auto-secrets: PLANKA_DB_PASSWORD, PLANKA_SECRET_KEY
         "services": {
             "planka": {
@@ -1392,6 +1433,11 @@ APPS: dict[str, dict] = {
         "port": 8070,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8070 — login: admin / see credentials panel above",
+            "Add feeds: Feeds > Add Feed > paste any RSS/Atom URL",
+            "Use a Fever-compatible RSS app (Reeder, NetNewsWire) by pointing it to http://{SERVER_IP}:8070/fever/",
+        ],
         # Auto-secrets: MINIFLUX_DB_PASSWORD, MINIFLUX_ADMIN_PASSWORD
         "services": {
             "miniflux": {
@@ -1432,6 +1478,11 @@ APPS: dict[str, dict] = {
         "port": 3210,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:3210 — create an account on first visit",
+            "Browser extension: install Hoarder for Chrome or Firefox to save pages in one click",
+            "Mobile: install the Hoarder app (iOS/Android) and set server to http://{SERVER_IP}:3210",
+        ],
         # Auto-secrets: HOARDER_SECRET, HOARDER_MEILI_KEY
         "guided_prompts": [
             {
@@ -1672,6 +1723,9 @@ APPS: dict[str, dict] = {
         "port": 8888,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8888 — no login required, all container logs visible immediately",
+        ],
         "services": {
             "dozzle": {
                 "image": "amir20/dozzle:latest",
@@ -1692,6 +1746,10 @@ APPS: dict[str, dict] = {
         "port": 8090,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8090 — create your admin account on first visit",
+            "To monitor other machines: add a system in the UI, then install the beszel-agent on that machine",
+        ],
         "services": {
             "beszel": {
                 "image": "henrygd/beszel:latest",
@@ -1712,6 +1770,10 @@ APPS: dict[str, dict] = {
         "port": 5000,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:5000 — no login required by default",
+            "Add a watch: paste any URL, set check interval, add notification (email, ntfy, etc.)",
+        ],
         "services": {
             "changedetection": {
                 "image": "ghcr.io/dgtlmoon/changedetection.io:latest",
@@ -1733,6 +1795,10 @@ APPS: dict[str, dict] = {
         "port": 8083,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8083 — drive health data appears automatically after startup",
+            "Find your drives: run 'lsblk' on your server to list device paths before setup",
+        ],
         "guided_prompts": [
             {
                 "key": "SCRUTINY_DRIVES",
@@ -1822,6 +1888,9 @@ APPS: dict[str, dict] = {
         "port": 19999,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:19999 — metrics appear immediately, no configuration needed",
+        ],
         # network_mode: host — no "networks" key for this service
         "services": {
             "netdata": {
@@ -1859,6 +1928,10 @@ APPS: dict[str, dict] = {
         "port": 8020,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8020 — create an account on first visit",
+            "Create a check, then add 'curl -fsS http://{SERVER_IP}:8020/ping/<uuid>' to your cron job",
+        ],
         # Auto-secret: HEALTHCHECKS_SECRET_KEY
         "services": {
             "healthchecks": {
@@ -1915,6 +1988,10 @@ APPS: dict[str, dict] = {
         "port": 3000,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Bookmark http://{SERVER_IP}:3000 — this is your homelab home page",
+            "All your selected apps are pre-configured as tiles — edit ~/homelab-starter/homepage-config/services.yaml to customize",
+        ],
         "services": {
             "homepage": {
                 "image": "ghcr.io/gethomepage/homepage:latest",
