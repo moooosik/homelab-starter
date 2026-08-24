@@ -85,6 +85,7 @@ APPS: dict[str, dict] = {
                     "POSTGRES_PASSWORD": "${NEXTCLOUD_DB_PASSWORD}",
                     "NEXTCLOUD_ADMIN_USER": "admin",
                     "NEXTCLOUD_ADMIN_PASSWORD": "${NEXTCLOUD_ADMIN_PASSWORD}",
+                    "NEXTCLOUD_TRUSTED_DOMAINS": "${SERVER_IP}",
                 },
                 "volumes": ["nextcloud-data:/var/www/html"],
                 "depends_on": ["nextcloud-db"],
@@ -653,6 +654,12 @@ APPS: dict[str, dict] = {
         "port": 6767,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:6767 to configure Bazarr",
+            "Connect Sonarr: Settings > Sonarr > host=sonarr, port=8989, API key from Sonarr > Settings > General",
+            "Connect Radarr: Settings > Radarr > host=radarr, port=7878, API key from Radarr > Settings > General",
+            "Add subtitle providers: Settings > Subtitles > pick OpenSubtitles, Subscene, etc.",
+        ],
         "guided_prompts": [
             {"key": "MEDIA_PATH", "label": "Path to your media library", "default": "/mnt/media"},
         ],
@@ -701,7 +708,7 @@ APPS: dict[str, dict] = {
                 "networks": ["homelab"],
             },
             "open-webui": {
-                "image": "ghcr.io/open-webui/open-webui:main",
+                "image": "ghcr.io/open-webui/open-webui:latest",
                 "container_name": "open-webui",
                 "restart": "unless-stopped",
                 "ports": ["3030:8080"],

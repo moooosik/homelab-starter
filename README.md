@@ -14,13 +14,20 @@ Answer a few questions, pick the apps you want from a menu, and it handles every
 
 ## Quick start
 
-Open a terminal on your home server and paste this:
+**Option A — one-liner (no Python required):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash
 ```
 
-That's it. It checks what your server needs, installs anything missing, then walks you through the setup.
+**Option B — pip:**
+
+```bash
+pip install homelab-starter
+homelab-starter
+```
+
+Either way: it checks what your server needs, installs anything missing, then walks you through the setup.
 
 ---
 
@@ -66,7 +73,7 @@ That's it. It checks what your server needs, installs anything missing, then wal
 
 ## App catalog
 
-52 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 52 choices.
+53 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 53 choices.
 
 ### Your Digital Life
 | App | Port | Description |
