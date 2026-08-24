@@ -475,6 +475,12 @@ APPS: dict[str, dict] = {
         "port": 8989,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8989 — Sonarr will walk you through initial setup",
+            "Add a root folder: Settings > Media Management > Root Folders > /media",
+            "Connect qBittorrent: Settings > Download Clients > Add > qBittorrent > host=qbittorrent, port=8080",
+            "Connect Prowlarr: Settings > Indexers > Add Indexer > Torznab (point to Prowlarr)",
+        ],
         "guided_prompts": [
             {"key": "MEDIA_PATH", "label": "Path to your media library", "default": "/mnt/media"},
             {"key": "DOWNLOADS_PATH", "label": "Path to your downloads folder", "default": "/mnt/downloads"},
@@ -508,6 +514,12 @@ APPS: dict[str, dict] = {
         "port": 7878,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:7878 — Radarr will walk you through initial setup",
+            "Add a root folder: Settings > Media Management > Root Folders > /media",
+            "Connect qBittorrent: Settings > Download Clients > Add > qBittorrent > host=qbittorrent, port=8080",
+            "Connect Prowlarr: Settings > Indexers > Add Indexer > Torznab (point to Prowlarr)",
+        ],
         "guided_prompts": [
             {"key": "MEDIA_PATH", "label": "Path to your media library", "default": "/mnt/media"},
             {"key": "DOWNLOADS_PATH", "label": "Path to your downloads folder", "default": "/mnt/downloads"},
@@ -541,6 +553,11 @@ APPS: dict[str, dict] = {
         "port": 9696,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:9696 — add your indexers (torrent sites) here",
+            "Connect to Sonarr: Settings > Apps > Add Application > Sonarr > http://sonarr:8989",
+            "Connect to Radarr: Settings > Apps > Add Application > Radarr > http://radarr:7878",
+        ],
         "services": {
             "prowlarr": {
                 "image": "lscr.io/linuxserver/prowlarr:latest",
@@ -567,6 +584,10 @@ APPS: dict[str, dict] = {
         "port": 8091,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8091 — default login is admin / adminadmin (change it immediately)",
+            "Sonarr/Radarr connect to this using host=qbittorrent, port=8080 (internal Docker port)",
+        ],
         "guided_prompts": [
             {"key": "DOWNLOADS_PATH", "label": "Path to your downloads folder", "default": "/mnt/downloads"},
         ],
@@ -603,6 +624,11 @@ APPS: dict[str, dict] = {
         "port": 5055,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:5055 — sign in with your Jellyfin account to configure",
+            "Connect Jellyfin: Setup Wizard > Jellyfin > http://jellyfin:8096",
+            "Share http://{SERVER_IP}:5055 with family — they can request movies and shows",
+        ],
         "services": {
             "jellyseerr": {
                 "image": "fallenbagel/jellyseerr:latest",
@@ -1031,6 +1057,11 @@ APPS: dict[str, dict] = {
         "port": 8000,
         "url_path": "",
         "watchtower_exclude": True,
+        "connect": [
+            "Open http://{SERVER_IP}:8000 — login: admin / see credentials panel above",
+            "Upload documents via the web UI, or drop files into the consume folder",
+            "Mobile scan: use the Paperless app (iOS/Android) — Server URL: http://{SERVER_IP}:8000",
+        ],
         "services": {
             "paperless-ngx": {
                 "image": "ghcr.io/paperless-ngx/paperless-ngx:latest",
@@ -1122,6 +1153,10 @@ APPS: dict[str, dict] = {
         "port": 5678,
         "url_path": "",
         "watchtower_exclude": True,
+        "connect": [
+            "Open http://{SERVER_IP}:5678 — create your owner account on first visit",
+            "Browse community workflows at https://n8n.io/workflows to get started fast",
+        ],
         "services": {
             "n8n": {
                 "image": "n8nio/n8n:latest",
@@ -1507,6 +1542,7 @@ APPS: dict[str, dict] = {
                 "environment": {
                     "SYNAPSE_SERVER_NAME": "${MATRIX_SERVER_NAME}",
                     "SYNAPSE_REPORT_STATS": "no",
+                    "SYNAPSE_REGISTRATION_SHARED_SECRET": "${MATRIX_REGISTRATION_SECRET}",
                 },
                 "volumes": ["synapse-data:/data"],
                 "depends_on": {
@@ -1590,6 +1626,11 @@ APPS: dict[str, dict] = {
         "port": 3001,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:3001 — create your admin account on first visit",
+            "Add a monitor: New Monitor > HTTP(s) > paste any of the URLs from this guide",
+            "Set up notifications: Settings > Notifications > add Telegram, email, or ntfy",
+        ],
         "services": {
             "uptime-kuma": {
                 "image": "louislam/uptime-kuma:latest",
@@ -1707,6 +1748,11 @@ APPS: dict[str, dict] = {
         "port": 3002,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Grafana: http://{SERVER_IP}:3002 — login: admin / see credentials panel above",
+            "Add Prometheus data source: Connections > Data Sources > Prometheus > URL: http://prometheus:9090",
+            "Import a dashboard: Dashboards > Import > enter ID 1860 for Node Exporter Full",
+        ],
         # Auto-secret: GRAFANA_ADMIN_PASSWORD
         "side_files": {
             "prometheus.yml": (
@@ -1766,7 +1812,6 @@ APPS: dict[str, dict] = {
                 "restart": "unless-stopped",
                 "network_mode": "host",
                 "pid": "host",
-                "ports": ["19999:19999"],
                 "cap_add": ["SYS_PTRACE", "SYS_ADMIN"],
                 "security_opt": ["apparmor:unconfined"],
                 "volumes": [
@@ -1825,6 +1870,10 @@ APPS: dict[str, dict] = {
         "port": 9000,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:9000 — create your admin account on first visit",
+            "Select 'Get Started' to manage the local Docker environment",
+        ],
         "services": {
             "portainer": {
                 "image": "portainer/portainer-ce:latest",
