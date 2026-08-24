@@ -5,7 +5,9 @@ All notable changes to homelab-starter are documented here.
 ## [Unreleased]
 
 ### Added
-- **`--list` flag**: `homelab-starter --list` prints all 56 apps grouped by category with ports and descriptions — browse the catalog without running the installer
+- **`--list` flag**: `homelab-starter --list` prints all 58 apps grouped by category with ports and descriptions — browse the catalog without running the installer
+- **Flowise** (port 3100) — drag-and-drop AI workflow builder, chain LLMs and tools visually; connects to local Ollama
+- **AnythingLLM** (port 3110) — chat with your documents using local or cloud LLMs; private RAG on your own server
 - **ArchiveBox** (port 8099) — self-hosted internet archive, saves full webpage copies
 - **LibreSpeed** (port 8088) — self-hosted network speed test server
 - **Ghost** (port 2368) — professional blogging and newsletter platform, self-hosted Substack

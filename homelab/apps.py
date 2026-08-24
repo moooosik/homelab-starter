@@ -753,6 +753,72 @@ APPS: dict[str, dict] = {
         "volumes": {"ollama-data": None, "open-webui-data": None},
     },
 
+    "flowise": {
+        "name": "Flowise",
+        "description": "Drag-and-drop AI workflow builder — chain LLMs, tools, and APIs visually",
+        "category": "AI",
+        "port": 3100,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "guided_prompts": [
+            {"key": "FLOWISE_USERNAME", "label": "Flowise admin username", "default": "admin"},
+            {"key": "FLOWISE_PASSWORD", "label": "Flowise admin password", "default": "", "secret": True},
+        ],
+        "connect": [
+            "Web UI: http://{SERVER_IP}:3100 — build AI pipelines visually",
+            "To use with local Ollama: add an Ollama node and set Base URL to http://ollama:11434",
+            "API endpoint for your flows: http://{SERVER_IP}:3100/api/v1/prediction/<flow-id>",
+        ],
+        "services": {
+            "flowise": {
+                "image": "flowiseai/flowise:latest",
+                "container_name": "flowise",
+                "restart": "unless-stopped",
+                "ports": ["3100:3000"],
+                "environment": {
+                    "FLOWISE_USERNAME": "${FLOWISE_USERNAME}",
+                    "FLOWISE_PASSWORD": "${FLOWISE_PASSWORD}",
+                    "DATABASE_PATH": "/root/.flowise",
+                    "SECRETKEY_PATH": "/root/.flowise",
+                    "LOG_PATH": "/root/.flowise/logs",
+                },
+                "volumes": ["flowise-data:/root/.flowise"],
+                "networks": ["homelab"],
+            },
+        },
+        "volumes": {"flowise-data": None},
+    },
+
+    "anythingllm": {
+        "name": "AnythingLLM",
+        "description": "Chat with your documents using local or cloud LLMs — private RAG on your own server",
+        "category": "AI",
+        "port": 3110,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Web UI: http://{SERVER_IP}:3110 — upload docs and start chatting",
+            "First launch: create a workspace, upload PDFs/docs, then chat",
+            "To use local Ollama: Settings → LLM Preference → Ollama → http://ollama:11434",
+        ],
+        "services": {
+            "anythingllm": {
+                "image": "mintplexlabs/anythingllm:latest",
+                "container_name": "anythingllm",
+                "restart": "unless-stopped",
+                "ports": ["3110:3001"],
+                "environment": {
+                    "STORAGE_DIR": "/app/server/storage",
+                    "UID": "1000",
+                    "GID": "1000",
+                },
+                "volumes": ["anythingllm-storage:/app/server/storage"],
+                "networks": ["homelab"],
+            },
+        },
+        "volumes": {"anythingllm-storage": None},
+    },
+
     # -------------------------------------------------------------------------
     # SMART HOME
     # -------------------------------------------------------------------------
@@ -2292,7 +2358,7 @@ CATEGORIES: dict[str, list[str]] = {
     "Your Digital Life": ["vaultwarden", "actual", "nextcloud", "syncthing", "baikal", "nas"],
     "Media": ["jellyfin", "plex", "immich", "navidrome", "kavita", "audiobookshelf"],
     "Media Automation": ["sonarr", "radarr", "prowlarr", "qbittorrent", "jellyseerr", "bazarr"],
-    "AI": ["ai"],
+    "AI": ["ai", "flowise", "anythingllm"],
     "Smart Home": ["homeassistant", "grocy", "mealie"],
     "Networking": ["caddy", "duckdns", "tailscale", "pihole", "adguardhome", "librespeed"],
     "Security": ["crowdsec", "authentik"],

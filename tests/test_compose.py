@@ -185,6 +185,21 @@ def test_librespeed_in_compose():
     assert "librespeed" in compose["services"]
 
 
+def test_flowise_in_compose():
+    compose, _ = build(["flowise"], "10.0.0.1", {})
+    assert "flowise" in compose["services"]
+
+
+def test_anythingllm_in_compose():
+    compose, _ = build(["anythingllm"], "10.0.0.1", {})
+    assert "anythingllm" in compose["services"]
+
+
+def test_ai_category_has_three_apps():
+    from homelab.apps import CATEGORIES
+    assert len(CATEGORIES["AI"]) == 3
+
+
 def test_no_port_conflicts():
     from homelab.apps import APPS
     ports: dict[int, str] = {}
