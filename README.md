@@ -74,7 +74,7 @@ Either way: it checks what your server needs, installs anything missing, then wa
 
 ## App catalog
 
-53 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 53 choices.
+56 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 56 choices.
 
 ### Your Digital Life
 | App | Port | Description |
@@ -126,6 +126,7 @@ Either way: it checks what your server needs, installs anything missing, then wa
 | **Tailscale** | — | Zero-config VPN — access your server from anywhere |
 | **Pi-hole** | 8053 | Network-wide DNS ad blocking for every device on your WiFi |
 | **AdGuard Home** | 8054 | DNS-based ad and tracker blocking — alternative to Pi-hole |
+| **LibreSpeed** | 8088 | Self-hosted network speed test — measure download, upload, and ping |
 
 ### Security
 | App | Port | Description |
@@ -138,6 +139,7 @@ Either way: it checks what your server needs, installs anything missing, then wa
 |-----|------|-------------|
 | **Paperless-ngx** | 8000 | Scan, OCR, tag, and full-text search your physical documents |
 | **Stirling-PDF** | 8085 | Convert, merge, split, compress, and OCR PDFs — entirely local |
+| **ArchiveBox** | 8099 | Self-hosted internet archive — save full copies of any webpage: HTML, PDF, screenshot |
 
 ### Productivity
 | App | Port | Description |
@@ -149,6 +151,7 @@ Either way: it checks what your server needs, installs anything missing, then wa
 | **Planka** | 1337 | Kanban boards — self-hosted Trello |
 | **Miniflux** | 8070 | Minimalist RSS feed reader |
 | **Hoarder** | 3210 | AI-powered bookmark manager — save links, auto-tag, full-text search |
+| **Ghost** | 2368 | Professional blogging and newsletter platform — self-hosted Substack |
 
 ### Communication
 | App | Port | Description |

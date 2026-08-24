@@ -5,7 +5,10 @@ All notable changes to homelab-starter are documented here.
 ## [Unreleased]
 
 ### Added
-- Connect steps for Sonarr, Radarr, Prowlarr, qBittorrent, Jellyseerr, Portainer, Uptime Kuma, Grafana, n8n, Paperless-ngx, Bazarr, Grocy, Mealie, Stirling-PDF — CONNECT.md now covers all major apps
+- **ArchiveBox** (port 8099) — self-hosted internet archive, saves full webpage copies
+- **LibreSpeed** (port 8088) — self-hosted network speed test server
+- **Ghost** (port 2368) — professional blogging and newsletter platform, self-hosted Substack
+- Connect steps for all 56 apps — CONNECT.md covers every service with first-login URLs and client setup
 - Port conflict guard: installer detects Pi-hole + AdGuard Home selected together and asks which to keep
 - Homepage auto-configuration: generates `homepage-config/services.yaml` with all selected app tiles
 - Multi-drive Scrutiny: guided prompt for `SCRUTINY_DRIVES` accepts comma-separated device paths (e.g. `/dev/sda,/dev/nvme0n1`)

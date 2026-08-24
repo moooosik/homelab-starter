@@ -986,6 +986,36 @@ APPS: dict[str, dict] = {
         "volumes": {"adguardhome-work": None, "adguardhome-conf": None},
     },
 
+    "librespeed": {
+        "name": "LibreSpeed",
+        "description": "Self-hosted network speed test — measure download, upload, and ping from any browser",
+        "category": "Networking",
+        "port": 8088,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8088 and click Go — tests your speed to this server",
+            "Share with others on your network to test their connection to the server",
+        ],
+        "services": {
+            "librespeed": {
+                "image": "lscr.io/linuxserver/librespeed:latest",
+                "container_name": "librespeed",
+                "restart": "unless-stopped",
+                "ports": ["8088:80"],
+                "environment": {
+                    "TZ": "${TZ}",
+                    "PUID": "1000",
+                    "PGID": "1000",
+                    "MODE": "standalone",
+                },
+                "volumes": ["librespeed-config:/config"],
+                "networks": ["homelab"],
+            }
+        },
+        "volumes": {"librespeed-config": None},
+    },
+
     # -------------------------------------------------------------------------
     # SECURITY
     # -------------------------------------------------------------------------
@@ -1188,6 +1218,35 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {"stirling-pdf-data": None, "stirling-pdf-configs": None},
+    },
+
+    "archivebox": {
+        "name": "ArchiveBox",
+        "description": "Self-hosted internet archive — save full copies of any webpage: HTML, PDF, screenshot",
+        "category": "Documents",
+        "port": 8099,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8099 — create your admin account with the on-screen prompt",
+            "Add URLs to archive via the web UI, CLI, or by importing bookmarks/RSS feeds",
+            "Browser extension: install ArchiveBox Exporter to save pages in one click",
+        ],
+        "services": {
+            "archivebox": {
+                "image": "archivebox/archivebox:latest",
+                "container_name": "archivebox",
+                "restart": "unless-stopped",
+                "ports": ["8099:8000"],
+                "environment": {
+                    "ALLOWED_HOSTS": "*",
+                    "MEDIA_MAX_SIZE": "750m",
+                },
+                "volumes": ["archivebox-data:/data"],
+                "networks": ["homelab"],
+            }
+        },
+        "volumes": {"archivebox-data": None},
     },
 
     # -------------------------------------------------------------------------
@@ -1523,6 +1582,56 @@ APPS: dict[str, dict] = {
             },
         },
         "volumes": {"hoarder-data": None, "hoarder-meili": None},
+    },
+
+    "ghost": {
+        "name": "Ghost",
+        "description": "Professional blogging and newsletter platform — self-hosted Substack",
+        "category": "Productivity",
+        "port": 2368,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:2368/ghost — complete the setup wizard to create your site",
+            "Your blog is live at http://{SERVER_IP}:2368",
+            "Members can subscribe at http://{SERVER_IP}:2368/#subscribe",
+        ],
+        "guided_prompts": [
+            {"key": "GHOST_URL", "label": "Public URL for your Ghost site (e.g. https://blog.example.com)", "default": "http://localhost:2368"},
+        ],
+        "services": {
+            "ghost": {
+                "image": "ghost:latest",
+                "container_name": "ghost",
+                "restart": "unless-stopped",
+                "ports": ["2368:2368"],
+                "environment": {
+                    "database__client": "mysql",
+                    "database__connection__host": "ghost-db",
+                    "database__connection__user": "ghost",
+                    "database__connection__password": "${GHOST_DB_PASSWORD}",
+                    "database__connection__database": "ghost",
+                    "url": "${GHOST_URL}",
+                },
+                "volumes": ["ghost-content:/var/lib/ghost/content"],
+                "depends_on": ["ghost-db"],
+                "networks": ["homelab"],
+            },
+            "ghost-db": {
+                "image": "mysql:8.0",
+                "container_name": "ghost-db",
+                "restart": "unless-stopped",
+                "environment": {
+                    "MYSQL_ROOT_PASSWORD": "${GHOST_DB_ROOT_PASSWORD}",
+                    "MYSQL_USER": "ghost",
+                    "MYSQL_PASSWORD": "${GHOST_DB_PASSWORD}",
+                    "MYSQL_DATABASE": "ghost",
+                },
+                "volumes": ["ghost-db:/var/lib/mysql"],
+                "networks": ["homelab"],
+            },
+        },
+        "volumes": {"ghost-content": None, "ghost-db": None},
     },
 
     # -------------------------------------------------------------------------
@@ -2065,10 +2174,10 @@ CATEGORIES: dict[str, list[str]] = {
     "Media Automation": ["sonarr", "radarr", "prowlarr", "qbittorrent", "jellyseerr", "bazarr"],
     "AI": ["ai"],
     "Smart Home": ["homeassistant", "grocy", "mealie"],
-    "Networking": ["caddy", "duckdns", "tailscale", "pihole", "adguardhome"],
+    "Networking": ["caddy", "duckdns", "tailscale", "pihole", "adguardhome", "librespeed"],
     "Security": ["crowdsec", "authentik"],
-    "Documents": ["paperless", "stirling-pdf"],
-    "Productivity": ["n8n", "gitea", "bookstack", "vikunja", "planka", "miniflux", "hoarder"],
+    "Documents": ["paperless", "stirling-pdf", "archivebox"],
+    "Productivity": ["n8n", "gitea", "bookstack", "vikunja", "planka", "miniflux", "hoarder", "ghost"],
     "Communication": ["matrix", "mattermost", "ntfy"],
     "Monitoring": ["uptime-kuma", "dozzle", "beszel", "changedetection", "scrutiny", "grafana", "netdata", "healthchecks"],
     "Management": ["portainer", "homepage"],
