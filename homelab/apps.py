@@ -761,6 +761,10 @@ APPS: dict[str, dict] = {
         "port": 9283,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:9283 — default login is admin / admin (change it in Settings)",
+            "Mobile app: install Grocy for Android or iOS, then set server to http://{SERVER_IP}:9283",
+        ],
         "services": {
             "grocy": {
                 "image": "lscr.io/linuxserver/grocy:latest",
@@ -782,6 +786,10 @@ APPS: dict[str, dict] = {
         "port": 9925,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:9925 — default login is changeme@example.com / MyPassword (change immediately)",
+            "Import recipes by URL: click + > Create Recipe > Import from URL",
+        ],
         "services": {
             "mealie": {
                 "image": "ghcr.io/mealie-recipes/mealie:latest",
@@ -1132,6 +1140,9 @@ APPS: dict[str, dict] = {
         "port": 8085,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8085 — no login required, all tools available immediately",
+        ],
         "services": {
             "stirling-pdf": {
                 "image": "frooodle/s-pdf:latest",

@@ -6,6 +6,7 @@ Homelab Starter sets up your home server so you can run your own apps — passwo
 
 Answer a few questions, pick the apps you want from a menu, and it handles everything else: installing the software it needs, creating secure passwords automatically, and getting your apps running. No config files to edit. No guides to read. No passwords to copy-paste.
 
+[![PyPI](https://img.shields.io/pypi/v/homelab-starter?color=blue)](https://pypi.org/project/homelab-starter/)
 [![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/moooosik)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=github&logoColor=white)](https://github.com/sponsors/moooosik)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)

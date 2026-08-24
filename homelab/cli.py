@@ -313,6 +313,8 @@ def _print_credentials(env: dict, selected_ids: list[str]) -> None:
         ("grafana",    "Grafana",         "admin",                "GRAFANA_ADMIN_PASSWORD"),
         ("bookstack",  "BookStack",       "admin@example.com",    "BOOKSTACK_ROOT_PASSWORD"),
         ("miniflux",   "Miniflux",        "admin",                "MINIFLUX_ADMIN_PASSWORD"),
+        ("pihole",     "Pi-hole",         "(web UI login)",       "PIHOLE_PASSWORD"),
+        ("nas",        "NAS (Samba)",     "homelab",              "NAS_PASSWORD"),
     ]
 
     rows = [
