@@ -36,11 +36,16 @@ BANNER = """
 @click.command()
 @click.option("--dry-run", is_flag=True, help="Generate files but do not deploy.")
 @click.option("--list", "list_apps", is_flag=True, help="List all available apps and exit.")
-def main(dry_run: bool, list_apps: bool) -> None:
+@click.option("--update", "do_update", is_flag=True, help="Re-generate files from existing .env without re-running the installer.")
+def main(dry_run: bool, list_apps: bool, do_update: bool) -> None:
     console.print(Panel(BANNER.strip(), border_style="cyan", expand=False))
 
     if list_apps:
         _print_app_catalog()
+        return
+
+    if do_update:
+        _run_update(dry_run)
         return
 
     console.print(
@@ -207,6 +212,74 @@ def main(dry_run: bool, list_apps: bool) -> None:
 
     if has_domain and domain:
         _print_domain_instructions(domain, selected_ids)
+
+
+def _run_update(dry_run: bool) -> None:
+    """Re-generate docker-compose.yml and .env from the existing .env file."""
+    env_path = DEPLOY_DIR / ".env"
+    compose_path = DEPLOY_DIR / "docker-compose.yml"
+
+    if not env_path.exists():
+        console.print(
+            "[bold red]No existing .env found.[/bold red] "
+            f"Run [bold]homelab-starter[/bold] first to do an initial install.\n"
+            f"Expected location: [cyan]{env_path}[/cyan]"
+        )
+        sys.exit(1)
+
+    # Read existing .env to recover selected_ids and user_config
+    user_config: dict = {}
+    for line in env_path.read_text().splitlines():
+        if "=" in line and not line.startswith("#"):
+            key, _, value = line.partition("=")
+            user_config[key.strip()] = value.strip()
+
+    server_ip = user_config.get("SERVER_IP", get_local_ip())
+
+    # Recover selected_ids from the existing compose file
+    selected_ids: list[str] = []
+    if compose_path.exists():
+        import yaml as _yaml
+        existing = _yaml.safe_load(compose_path.read_text()) or {}
+        svc_names = set((existing.get("services") or {}).keys())
+        for app_id, app in app_catalog.APPS.items():
+            if svc_names & set(app["services"].keys()):
+                selected_ids.append(app_id)
+    else:
+        console.print("[yellow]No existing docker-compose.yml found — rebuilding with all apps from .env.[/yellow]")
+
+    console.print(f"[dim]Regenerating files for {len(selected_ids)} apps...[/dim]")
+
+    compose_dict, env_dict = compose_builder.build(selected_ids, server_ip, user_config)
+
+    if "caddy" in selected_ids:
+        _write_caddyfile(selected_ids, server_ip)
+    if "homepage" in selected_ids:
+        _write_homepage_services(selected_ids, server_ip)
+
+    compose_builder.write_files(compose_dict, env_dict, DEPLOY_DIR, selected_ids)
+
+    if dry_run:
+        console.print(
+            Panel(
+                f"[bold]Update dry run complete.[/bold]\n"
+                f"Files written to [cyan]{DEPLOY_DIR}[/cyan]\n"
+                f"Run [bold]docker compose up -d[/bold] in that directory to apply.",
+                border_style="yellow",
+            )
+        )
+        return
+
+    console.print("\n[bold cyan]Applying update...[/bold cyan]\n")
+    result = subprocess.run(
+        ["docker", "compose", "up", "-d", "--pull", "always"],
+        cwd=DEPLOY_DIR,
+    )
+    if result.returncode != 0:
+        console.print("\n[bold red]Update failed.[/bold red] Check the output above.")
+        sys.exit(1)
+
+    console.print("\n[bold green]Update complete.[/bold green] All containers restarted with latest config.")
 
 
 def _print_app_catalog() -> None:
