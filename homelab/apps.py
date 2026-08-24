@@ -1479,7 +1479,7 @@ APPS: dict[str, dict] = {
                 '  "default_server_config": {\n'
                 '    "m.homeserver": {\n'
                 '      "base_url": "http://synapse:8448",\n'
-                '      "server_name": "matrix.local"\n'
+                '      "server_name": "{MATRIX_SERVER_NAME}"\n'
                 '    }\n'
                 '  }\n'
                 '}\n'

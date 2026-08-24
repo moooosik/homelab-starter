@@ -1,7 +1,10 @@
 """Tests for compose builder logic."""
 
+import tempfile
+from pathlib import Path
+
 from homelab.apps import APPS, checklist_choices, get_guided_prompts
-from homelab.compose import build
+from homelab.compose import build, write_files
 
 
 def test_build_single_app():
@@ -112,3 +115,12 @@ def test_homepage_uses_bind_mount():
     compose, _ = build(["homepage"], "10.0.0.1", {})
     vols = compose["services"]["homepage"]["volumes"]
     assert any("homepage-config" in v and v.startswith("./") for v in vols)
+
+
+def test_matrix_element_config_uses_server_name():
+    compose, env = build(["matrix"], "10.0.0.1", {"MATRIX_SERVER_NAME": "chat.home.local"})
+    with tempfile.TemporaryDirectory() as tmp:
+        write_files(compose, env, Path(tmp), ["matrix"])
+        cfg = (Path(tmp) / "element-config.json").read_text()
+    assert "chat.home.local" in cfg
+    assert "matrix.local" not in cfg

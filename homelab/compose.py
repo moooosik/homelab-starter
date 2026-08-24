@@ -1,6 +1,7 @@
 """Build and write a merged docker-compose.yml + .env from selected app entries."""
 
 import os
+import re
 import secrets
 from pathlib import Path
 
@@ -119,4 +120,9 @@ def write_files(compose: dict, env: dict, deploy_dir: Path, selected_ids: list[s
     if selected_ids:
         for app_id in selected_ids:
             for filename, content in APPS[app_id].get("side_files", {}).items():
-                (deploy_dir / filename).write_text(content)
+                expanded = re.sub(
+                    r"\{([A-Z][A-Z0-9_]*)\}",
+                    lambda m: str(env.get(m.group(1), m.group(0))),
+                    content,
+                )
+                (deploy_dir / filename).write_text(expanded)
