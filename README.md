@@ -74,7 +74,7 @@ Either way: it checks what your server needs, installs anything missing, then wa
 
 ## App catalog
 
-56 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 56 choices.
+58 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 58 choices.
 
 ### Your Digital Life
 | App | Port | Description |
@@ -110,6 +110,8 @@ Either way: it checks what your server needs, installs anything missing, then wa
 | App | Port | Description |
 |-----|------|-------------|
 | **Ollama + Open WebUI** | 3030 | Run LLMs locally (Llama 3, Mistral, Gemma) with a ChatGPT-style interface |
+| **Flowise** | 3100 | Drag-and-drop AI workflow builder — chain LLMs, tools, and APIs visually |
+| **AnythingLLM** | 3110 | Chat with your documents using local or cloud LLMs — private RAG on your own server |
 
 ### Smart Home
 | App | Port | Description |
@@ -264,20 +266,18 @@ If you don't have a domain, all apps are still accessible by local IP (e.g. `htt
 
 ---
 
-## Dry run
-
-Preview the generated files without deploying anything:
+## CLI flags
 
 ```bash
-homelab-starter --dry-run
+homelab-starter           # full interactive install
+homelab-starter --dry-run # generate files but do not deploy
+homelab-starter --update  # re-generate files from existing .env (no prompts)
+homelab-starter --list    # browse all 58 available apps and exit
 ```
 
-Files land in `~/homelab-starter/`. Inspect and edit them, then deploy manually:
+**`--update`** is useful after pulling a new version of homelab-starter — it re-reads your existing `~/homelab-starter/.env`, detects which apps are installed from the current `docker-compose.yml`, regenerates everything with the latest config (new healthchecks, env vars, side files), and restarts your containers. Your secrets are preserved.
 
-```bash
-cd ~/homelab-starter
-docker compose up -d
-```
+**`--list`** works without Docker installed — useful for browsing the catalog on any machine before committing to a server.
 
 ---
 
@@ -289,10 +289,15 @@ Everything lives in `~/homelab-starter/` on your server:
 ~/homelab-starter/
 ├── docker-compose.yml   ← merged config for all selected apps
 ├── .env                 ← all secrets and config values — keep this private
-└── Caddyfile            ← generated if Caddy was selected
+├── Caddyfile            ← generated if Caddy was selected
+└── CONNECT.md           ← per-app instructions for clients, mobile apps, and devices
 ```
 
-To add or remove an app after initial setup, edit `docker-compose.yml` and re-run `docker compose up -d`.
+To re-generate after updating homelab-starter:
+
+```bash
+homelab-starter --update
+```
 
 ---
 
