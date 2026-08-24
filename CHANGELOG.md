@@ -5,6 +5,7 @@ All notable changes to homelab-starter are documented here.
 ## [Unreleased]
 
 ### Added
+- **`--list` flag**: `homelab-starter --list` prints all 56 apps grouped by category with ports and descriptions — browse the catalog without running the installer
 - **ArchiveBox** (port 8099) — self-hosted internet archive, saves full webpage copies
 - **LibreSpeed** (port 8088) — self-hosted network speed test server
 - **Ghost** (port 2368) — professional blogging and newsletter platform, self-hosted Substack
@@ -27,6 +28,7 @@ All notable changes to homelab-starter are documented here.
 - Ghost URL missing in basic mode: `GHOST_URL` now defaults to `http://<SERVER_IP>:2368` when no URL is provided
 - FileBrowser default `admin / admin` credential now shown in the post-install credentials panel — prevents the default being missed
 - All 12 postgres/redis/mariadb services now declare healthchecks; dependent apps upgraded to `condition: service_healthy` — eliminates DB-not-ready race conditions on first boot
+- Immich Redis upgraded from EOL `redis:6.2-alpine` to `redis:7-alpine`
 
 ## [0.1.1] — 2026-08-05
 

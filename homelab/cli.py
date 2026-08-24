@@ -35,8 +35,14 @@ BANNER = """
 
 @click.command()
 @click.option("--dry-run", is_flag=True, help="Generate files but do not deploy.")
-def main(dry_run: bool) -> None:
+@click.option("--list", "list_apps", is_flag=True, help="List all available apps and exit.")
+def main(dry_run: bool, list_apps: bool) -> None:
     console.print(Panel(BANNER.strip(), border_style="cyan", expand=False))
+
+    if list_apps:
+        _print_app_catalog()
+        return
+
     console.print(
         "Interactive homelab bootstrap. Space = toggle, Enter = confirm.\n",
         style="dim",
@@ -201,6 +207,26 @@ def main(dry_run: bool) -> None:
 
     if has_domain and domain:
         _print_domain_instructions(domain, selected_ids)
+
+
+def _print_app_catalog() -> None:
+    """Print all available apps grouped by category."""
+    for cat, app_ids in app_catalog.CATEGORIES.items():
+        table = Table(
+            title=f"[bold]{cat}[/bold]",
+            box=box.SIMPLE_HEAD,
+            border_style="dim",
+            show_header=True,
+            header_style="bold dim",
+        )
+        table.add_column("App", style="bold", min_width=26)
+        table.add_column("Port", justify="right", style="cyan", min_width=6)
+        table.add_column("Description")
+        for app_id in app_ids:
+            app = app_catalog.APPS[app_id]
+            port = str(app["port"]) if app.get("port") else "—"
+            table.add_row(app["name"], port, app["description"])
+        console.print(table)
 
 
 def _write_caddyfile(selected_ids: list[str], host: str) -> None:
