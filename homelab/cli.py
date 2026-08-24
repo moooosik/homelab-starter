@@ -255,12 +255,11 @@ def _write_homepage_services(selected_ids: list[str], server_ip: str) -> None:
     lines = []
     for cat, entries in by_category.items():
         lines.append(f"- {cat}:")
-        lines.append(f"    - {cat}:")
         for entry in entries:
             for name, cfg in entry.items():
-                lines.append(f"        - {name}:")
-                lines.append(f"              href: {cfg['href']}")
-                lines.append(f"              description: {cfg['description']}")
+                lines.append(f"    - {name}:")
+                lines.append(f"          href: {cfg['href']}")
+                lines.append(f"          description: {cfg['description']}")
 
     services_path = homepage_dir / "services.yaml"
     services_path.write_text("\n".join(lines) + "\n")
