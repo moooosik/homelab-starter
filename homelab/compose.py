@@ -63,6 +63,7 @@ def build(selected_ids: list[str], server_ip: str, user_config: dict) -> tuple[d
     env.update({k: user_config.get(k, "") for k in user_config})
     _fill_auto_secrets(env)
     _expand_scrutiny_drives(services, env)
+    _set_app_url_defaults(selected_ids, env)
 
     compose = {
         "services": services,
@@ -103,6 +104,12 @@ def _expand_scrutiny_drives(services: dict, env: dict) -> None:
         drives = ["/dev/sda"]
     services["scrutiny"]["devices"] = drives
     env["SCRUTINY_DRIVES"] = ",".join(drives)
+
+
+def _set_app_url_defaults(selected_ids: list[str], env: dict) -> None:
+    server_ip = env.get("SERVER_IP", "localhost")
+    if "ghost" in selected_ids and not env.get("GHOST_URL"):
+        env["GHOST_URL"] = f"http://{server_ip}:2368"
 
 
 def write_files(compose: dict, env: dict, deploy_dir: Path, selected_ids: list[str] | None = None) -> None:

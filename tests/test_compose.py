@@ -155,3 +155,44 @@ def test_matrix_element_config_uses_server_name():
         cfg = (Path(tmp) / "element-config.json").read_text()
     assert "chat.home.local" in cfg
     assert "matrix.local" not in cfg
+
+
+def test_ghost_url_defaults_to_server_ip():
+    _, env = build(["ghost"], "10.0.0.1", {})
+    assert env.get("GHOST_URL") == "http://10.0.0.1:2368"
+
+
+def test_ghost_url_not_overridden_when_set():
+    _, env = build(["ghost"], "10.0.0.1", {"GHOST_URL": "https://blog.example.com"})
+    assert env["GHOST_URL"] == "https://blog.example.com"
+
+
+def test_ghost_db_healthcheck_and_depends_on():
+    compose, _ = build(["ghost"], "10.0.0.1", {})
+    assert "healthcheck" in compose["services"]["ghost-db"]
+    dep = compose["services"]["ghost"].get("depends_on", {})
+    assert "ghost-db" in dep
+    assert dep["ghost-db"]["condition"] == "service_healthy"
+
+
+def test_archivebox_in_compose():
+    compose, _ = build(["archivebox"], "10.0.0.1", {})
+    assert "archivebox" in compose["services"]
+
+
+def test_librespeed_in_compose():
+    compose, _ = build(["librespeed"], "10.0.0.1", {})
+    assert "librespeed" in compose["services"]
+
+
+def test_no_port_conflicts():
+    from homelab.apps import APPS
+    ports: dict[int, str] = {}
+    for app_id, app in APPS.items():
+        port = app.get("port")
+        if port is None:
+            continue
+        assert port not in ports, (
+            f"Port {port} is used by both '{ports[port]}' and '{app_id}'"
+        )
+        ports[port] = app_id
