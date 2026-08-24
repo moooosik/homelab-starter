@@ -59,6 +59,7 @@ def build(selected_ids: list[str], server_ip: str, user_config: dict) -> tuple[d
 
     env.update({k: user_config.get(k, "") for k in user_config})
     _fill_auto_secrets(env)
+    _expand_scrutiny_drives(services, env)
 
     compose = {
         "services": services,
@@ -88,6 +89,17 @@ def _fill_auto_secrets(env: dict) -> None:
     for key, length in _AUTO_SECRETS.items():
         if key not in env or not env[key]:
             env[key] = secrets.token_urlsafe(length)
+
+
+def _expand_scrutiny_drives(services: dict, env: dict) -> None:
+    if "scrutiny" not in services:
+        return
+    raw = env.get("SCRUTINY_DRIVES", "/dev/sda")
+    drives = [d.strip() for d in raw.split(",") if d.strip()]
+    if not drives:
+        drives = ["/dev/sda"]
+    services["scrutiny"]["devices"] = drives
+    env["SCRUTINY_DRIVES"] = ",".join(drives)
 
 
 def write_files(compose: dict, env: dict, deploy_dir: Path, selected_ids: list[str] | None = None) -> None:

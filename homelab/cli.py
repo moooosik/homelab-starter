@@ -107,6 +107,23 @@ def main(dry_run: bool) -> None:
     if "watchtower" not in selected_ids:
         selected_ids.append("watchtower")
 
+    # Port conflict: Pi-hole and AdGuard Home both bind port 53
+    if "pihole" in selected_ids and "adguardhome" in selected_ids:
+        console.print(
+            "\n[bold yellow]Port conflict:[/bold yellow] Pi-hole and AdGuard Home both use port 53.\n"
+            "Only one DNS blocker can run at a time. Which one do you want to keep?\n"
+        )
+        dns_choice = questionary.select(
+            "Keep which DNS blocker?",
+            choices=[
+                questionary.Choice("Pi-hole", value="pihole"),
+                questionary.Choice("AdGuard Home", value="adguardhome"),
+            ],
+        ).ask()
+        if dns_choice is None:
+            sys.exit(0)
+        selected_ids.remove("pihole" if dns_choice == "adguardhome" else "adguardhome")
+
     # Custom domain
     has_domain = questionary.confirm(
         "Do you have a custom domain pointed at this server?",
@@ -145,6 +162,10 @@ def main(dry_run: bool) -> None:
     # Generate Caddyfile if Caddy selected
     if "caddy" in selected_ids:
         _write_caddyfile(selected_ids, domain or server_ip)
+
+    # Generate Homepage services.yaml if Homepage selected
+    if "homepage" in selected_ids:
+        _write_homepage_services(selected_ids, server_ip)
 
     compose_builder.write_files(compose_dict, env_dict, DEPLOY_DIR, selected_ids)
 
@@ -208,6 +229,42 @@ def _write_caddyfile(selected_ids: list[str], host: str) -> None:
     with open(caddyfile_path, "w") as f:
         f.write("\n".join(lines))
     console.print(f"[dim]Caddyfile written to {caddyfile_path}[/dim]")
+
+
+def _write_homepage_services(selected_ids: list[str], server_ip: str) -> None:
+    """Generate Homepage services.yaml so the dashboard shows all selected apps."""
+    DEPLOY_DIR.mkdir(parents=True, exist_ok=True)
+    homepage_dir = DEPLOY_DIR / "homepage-config"
+    homepage_dir.mkdir(exist_ok=True)
+
+    skip = {"homepage", "watchtower", "autoheal", "caddy", "duckdns", "tailscale", "crowdsec"}
+    by_category: dict[str, list[dict]] = {}
+
+    for app_id in selected_ids:
+        if app_id in skip:
+            continue
+        app = app_catalog.APPS[app_id]
+        port = app.get("port")
+        if not port:
+            continue
+        cat = app["category"]
+        url_path = app.get("url_path", "")
+        entry = {app["name"]: {"href": f"http://{server_ip}:{port}{url_path}", "description": app["description"]}}
+        by_category.setdefault(cat, []).append(entry)
+
+    lines = []
+    for cat, entries in by_category.items():
+        lines.append(f"- {cat}:")
+        lines.append(f"    - {cat}:")
+        for entry in entries:
+            for name, cfg in entry.items():
+                lines.append(f"        - {name}:")
+                lines.append(f"              href: {cfg['href']}")
+                lines.append(f"              description: {cfg['description']}")
+
+    services_path = homepage_dir / "services.yaml"
+    services_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[dim]Homepage services.yaml written to {services_path}[/dim]")
 
 
 def _print_urls(selected_ids: list[str], server_ip: str, domain: str) -> None:

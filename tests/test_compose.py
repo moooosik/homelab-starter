@@ -79,3 +79,36 @@ def test_network_mode_host_apps_excluded_from_homelab_network():
     svc = compose["services"]["homeassistant"]
     assert svc.get("network_mode") == "host"
     assert "networks" not in svc
+
+
+def test_matrix_synapse_init_container_present():
+    compose, _ = build(["matrix"], "10.0.0.1", {})
+    assert "synapse-init" in compose["services"]
+    init = compose["services"]["synapse-init"]
+    assert init["command"] == "generate"
+    assert init["restart"] == "no"
+
+
+def test_matrix_synapse_depends_on_init():
+    compose, _ = build(["matrix"], "10.0.0.1", {})
+    synapse = compose["services"]["synapse"]
+    dep = synapse.get("depends_on", {})
+    assert "synapse-init" in dep
+    assert dep["synapse-init"]["condition"] == "service_completed_successfully"
+
+
+def test_scrutiny_drives_default():
+    compose, env = build(["scrutiny"], "10.0.0.1", {})
+    assert compose["services"]["scrutiny"]["devices"] == ["/dev/sda"]
+    assert env["SCRUTINY_DRIVES"] == "/dev/sda"
+
+
+def test_scrutiny_drives_multiple():
+    compose, env = build(["scrutiny"], "10.0.0.1", {"SCRUTINY_DRIVES": "/dev/sda,/dev/nvme0n1"})
+    assert compose["services"]["scrutiny"]["devices"] == ["/dev/sda", "/dev/nvme0n1"]
+
+
+def test_homepage_uses_bind_mount():
+    compose, _ = build(["homepage"], "10.0.0.1", {})
+    vols = compose["services"]["homepage"]["volumes"]
+    assert any("homepage-config" in v and v.startswith("./") for v in vols)

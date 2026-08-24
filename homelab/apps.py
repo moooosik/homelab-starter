@@ -1486,6 +1486,19 @@ APPS: dict[str, dict] = {
             ),
         },
         "services": {
+            "synapse-init": {
+                # Generates homeserver.yaml on first boot (idempotent — skips if file exists).
+                "image": "matrixdotorg/synapse:latest",
+                "container_name": "synapse-init",
+                "command": "generate",
+                "restart": "no",
+                "environment": {
+                    "SYNAPSE_SERVER_NAME": "${MATRIX_SERVER_NAME}",
+                    "SYNAPSE_REPORT_STATS": "no",
+                },
+                "volumes": ["synapse-data:/data"],
+                "networks": ["homelab"],
+            },
             "synapse": {
                 "image": "matrixdotorg/synapse:latest",
                 "container_name": "synapse",
@@ -1496,6 +1509,9 @@ APPS: dict[str, dict] = {
                     "SYNAPSE_REPORT_STATS": "no",
                 },
                 "volumes": ["synapse-data:/data"],
+                "depends_on": {
+                    "synapse-init": {"condition": "service_completed_successfully"},
+                },
                 "networks": ["homelab"],
             },
             "element": {
@@ -1658,6 +1674,13 @@ APPS: dict[str, dict] = {
         "port": 8083,
         "url_path": "",
         "watchtower_exclude": False,
+        "guided_prompts": [
+            {
+                "key": "SCRUTINY_DRIVES",
+                "label": "Drive paths to monitor — comma-separated (e.g. /dev/sda  or  /dev/sda,/dev/nvme0n1)",
+                "default": "/dev/sda",
+            },
+        ],
         "services": {
             "scrutiny": {
                 "image": "ghcr.io/analogj/scrutiny:master-omnibus",
@@ -1665,7 +1688,7 @@ APPS: dict[str, dict] = {
                 "restart": "unless-stopped",
                 "ports": ["8083:8080"],
                 "cap_add": ["SYS_RAWIO", "SYS_ADMIN"],
-                "devices": ["/dev/sda"],  # extend this list for additional drives
+                "devices": "__SCRUTINY_DRIVES__",
                 "volumes": [
                     "/run/udev:/run/udev:ro",
                     "scrutiny-config:/opt/scrutiny/config",
@@ -1832,13 +1855,13 @@ APPS: dict[str, dict] = {
                 "restart": "unless-stopped",
                 "ports": ["3000:3000"],
                 "volumes": [
-                    "homepage-config:/app/config",
+                    "./homepage-config:/app/config",
                     "/var/run/docker.sock:/var/run/docker.sock",
                 ],
                 "networks": ["homelab"],
             }
         },
-        "volumes": {"homepage-config": None},
+        "volumes": {},
     },
 
     # -------------------------------------------------------------------------
