@@ -899,6 +899,12 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {"duckdns-config": None},
+        "connect": [
+            "Get your token at https://www.duckdns.org — log in and copy the token shown at the top",
+            "Your subdomain will resolve to your public IP within a few minutes of first start",
+            "Verify: ping <subdomain>.duckdns.org from any external device",
+            "docker logs duckdns | tail — look for 'OK' to confirm the update succeeded",
+        ],
     },
 
     "tailscale": {
@@ -1064,6 +1070,12 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {"crowdsec-db": None, "crowdsec-config": None},
+        "connect": [
+            "CrowdSec runs silently in the background — no UI needed for basic protection",
+            "Check alerts: docker exec crowdsec cscli alerts list",
+            "Check decisions (blocked IPs): docker exec crowdsec cscli decisions list",
+            "If using Caddy, add the bouncer: docker exec crowdsec cscli bouncers add caddy-bouncer and copy the key into your Caddyfile",
+        ],
     },
 
     "authentik": {
@@ -2238,6 +2250,12 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {},
+        "connect": [
+            "Watchtower runs silently — no UI or login needed",
+            "It checks for image updates nightly at 4 AM and restarts updated containers automatically",
+            "View update history: docker logs watchtower",
+            "Apps pinned to specific versions (Immich, Vaultwarden) are excluded from auto-updates",
+        ],
     },
 
     "autoheal": {
@@ -2258,6 +2276,11 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {},
+        "connect": [
+            "Autoheal runs silently — no UI or login needed",
+            "It monitors all containers with healthchecks and restarts any that become unhealthy",
+            "View restart events: docker logs autoheal",
+        ],
     },
 }
 

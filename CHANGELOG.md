@@ -23,6 +23,10 @@ All notable changes to homelab-starter are documented here.
 - Open WebUI image tag changed from `:main` (dev branch) to `:latest`
 - Netdata: removed redundant `ports` mapping (ignored by Docker when `network_mode: host`)
 - Homepage `services.yaml` indentation corrected — extra nesting level was preventing tiles from rendering
+- Ghost crashes on first boot: `ghost-db` (MySQL) now has a `mysqladmin ping` healthcheck; Ghost waits for `condition: service_healthy` before starting
+- Ghost URL missing in basic mode: `GHOST_URL` now defaults to `http://<SERVER_IP>:2368` when no URL is provided
+- FileBrowser default `admin / admin` credential now shown in the post-install credentials panel — prevents the default being missed
+- All 12 postgres/redis/mariadb services now declare healthchecks; dependent apps upgraded to `condition: service_healthy` — eliminates DB-not-ready race conditions on first boot
 
 ## [0.1.1] — 2026-08-05
 
