@@ -1614,7 +1614,9 @@ APPS: dict[str, dict] = {
                     "url": "${GHOST_URL}",
                 },
                 "volumes": ["ghost-content:/var/lib/ghost/content"],
-                "depends_on": ["ghost-db"],
+                "depends_on": {
+                    "ghost-db": {"condition": "service_healthy"},
+                },
                 "networks": ["homelab"],
             },
             "ghost-db": {
@@ -1628,6 +1630,13 @@ APPS: dict[str, dict] = {
                     "MYSQL_DATABASE": "ghost",
                 },
                 "volumes": ["ghost-db:/var/lib/mysql"],
+                "healthcheck": {
+                    "test": ["CMD", "mysqladmin", "ping", "-h", "localhost"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "networks": ["homelab"],
             },
         },

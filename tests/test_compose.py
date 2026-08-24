@@ -3,6 +3,8 @@
 import tempfile
 from pathlib import Path
 
+import yaml
+
 from homelab.apps import APPS, checklist_choices, get_guided_prompts
 from homelab.compose import build, write_files
 
@@ -115,6 +117,35 @@ def test_homepage_uses_bind_mount():
     compose, _ = build(["homepage"], "10.0.0.1", {})
     vols = compose["services"]["homepage"]["volumes"]
     assert any("homepage-config" in v and v.startswith("./") for v in vols)
+
+
+def test_homepage_services_yaml_is_valid():
+    """Regression: descriptions with ':' must not corrupt the YAML output."""
+    import sys
+    import types
+
+    # Minimal stub of cli._write_homepage_services without deploying
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from homelab.cli import _write_homepage_services
+
+    with tempfile.TemporaryDirectory() as tmp:
+        # Monkeypatch DEPLOY_DIR so files go to the temp dir
+        import homelab.cli as cli_mod
+        orig = cli_mod.DEPLOY_DIR
+        cli_mod.DEPLOY_DIR = Path(tmp)
+        try:
+            _write_homepage_services(["archivebox", "dozzle"], "10.0.0.1")
+        finally:
+            cli_mod.DEPLOY_DIR = orig
+
+        svc_path = Path(tmp) / "homepage-config" / "services.yaml"
+        content = svc_path.read_text()
+        # Must parse without error
+        parsed = yaml.safe_load(content)
+        assert parsed is not None
+        # ArchiveBox description contains ':' — verify it didn't corrupt the file
+        flat = str(parsed)
+        assert "ArchiveBox" in flat or "archivebox" in flat.lower()
 
 
 def test_matrix_element_config_uses_server_name():

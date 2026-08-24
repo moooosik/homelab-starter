@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import click
+import yaml
 import questionary
 from rich.console import Console
 from rich.panel import Panel
@@ -252,17 +253,13 @@ def _write_homepage_services(selected_ids: list[str], server_ip: str) -> None:
         entry = {app["name"]: {"href": f"http://{server_ip}:{port}{url_path}", "description": app["description"]}}
         by_category.setdefault(cat, []).append(entry)
 
-    lines = []
-    for cat, entries in by_category.items():
-        lines.append(f"- {cat}:")
-        for entry in entries:
-            for name, cfg in entry.items():
-                lines.append(f"    - {name}:")
-                lines.append(f"          href: {cfg['href']}")
-                lines.append(f"          description: {cfg['description']}")
+    doc = [
+        {cat: [{name: cfg for name, cfg in entry.items()} for entry in entries]}
+        for cat, entries in by_category.items()
+    ]
 
     services_path = homepage_dir / "services.yaml"
-    services_path.write_text("\n".join(lines) + "\n")
+    services_path.write_text(yaml.dump(doc, default_flow_style=False, allow_unicode=True))
     console.print(f"[dim]Homepage services.yaml written to {services_path}[/dim]")
 
 
