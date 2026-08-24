@@ -353,7 +353,7 @@ APPS: dict[str, dict] = {
                 "labels": [WATCHTOWER_LABEL],
             },
             "immich-redis": {
-                "image": "redis:6.2-alpine",
+                "image": "redis:7-alpine",
                 "container_name": "immich-redis",
                 "restart": "unless-stopped",
                 "healthcheck": {
