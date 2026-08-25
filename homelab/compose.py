@@ -121,10 +121,14 @@ def write_files(compose: dict, env: dict, deploy_dir: Path, selected_ids: list[s
         yaml.dump(compose, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
     fd = os.open(env_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with open(fd, "w") as f:
-        for key, value in env.items():
-            safe_value = str(value).replace("\n", "").replace("\r", "")
-            f.write(f"{key}={safe_value}\n")
+    try:
+        with os.fdopen(fd, "w") as f:
+            for key, value in env.items():
+                safe_value = str(value).replace("\n", "").replace("\r", "")
+                f.write(f"{key}={safe_value}\n")
+    except BaseException:
+        os.close(fd)
+        raise
 
     if selected_ids:
         for app_id in selected_ids:
