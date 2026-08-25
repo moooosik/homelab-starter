@@ -1,7 +1,6 @@
 """Tests for docker_check — install offer logic."""
 
 from unittest.mock import patch, MagicMock
-import sys
 
 
 def test_check_passes_when_docker_and_compose_present():
