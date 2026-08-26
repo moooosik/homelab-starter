@@ -6,6 +6,7 @@ Homelab Starter sets up your home server so you can run your own apps — passwo
 
 Answer a few questions, pick the apps you want from a menu, and it handles everything else: installing the software it needs, creating secure passwords automatically, and getting your apps running. No config files to edit. No guides to read. No passwords to copy-paste.
 
+[![PyPI](https://img.shields.io/pypi/v/homelab-starter?color=blue)](https://pypi.org/project/homelab-starter/)
 [![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/moooosik)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=github&logoColor=white)](https://github.com/sponsors/moooosik)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -14,13 +15,20 @@ Answer a few questions, pick the apps you want from a menu, and it handles every
 
 ## Quick start
 
-Open a terminal on your home server and paste this:
+**Option A — one-liner (no Python required):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/moooosik/homelab-starter/main/install.sh | bash
 ```
 
-That's it. It checks what your server needs, installs anything missing, then walks you through the setup.
+**Option B — pip:**
+
+```bash
+pip install homelab-starter
+homelab-starter
+```
+
+Either way: it checks what your server needs, installs anything missing, then walks you through the setup.
 
 ---
 
@@ -66,7 +74,7 @@ That's it. It checks what your server needs, installs anything missing, then wal
 
 ## App catalog
 
-52 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 52 choices.
+58 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 58 choices.
 
 ### Your Digital Life
 | App | Port | Description |
@@ -102,6 +110,8 @@ That's it. It checks what your server needs, installs anything missing, then wal
 | App | Port | Description |
 |-----|------|-------------|
 | **Ollama + Open WebUI** | 3030 | Run LLMs locally (Llama 3, Mistral, Gemma) with a ChatGPT-style interface |
+| **Flowise** | 3100 | Drag-and-drop AI workflow builder — chain LLMs, tools, and APIs visually |
+| **AnythingLLM** | 3110 | Chat with your documents using local or cloud LLMs — private RAG on your own server |
 
 ### Smart Home
 | App | Port | Description |
@@ -118,6 +128,7 @@ That's it. It checks what your server needs, installs anything missing, then wal
 | **Tailscale** | — | Zero-config VPN — access your server from anywhere |
 | **Pi-hole** | 8053 | Network-wide DNS ad blocking for every device on your WiFi |
 | **AdGuard Home** | 8054 | DNS-based ad and tracker blocking — alternative to Pi-hole |
+| **LibreSpeed** | 8088 | Self-hosted network speed test — measure download, upload, and ping |
 
 ### Security
 | App | Port | Description |
@@ -130,6 +141,7 @@ That's it. It checks what your server needs, installs anything missing, then wal
 |-----|------|-------------|
 | **Paperless-ngx** | 8000 | Scan, OCR, tag, and full-text search your physical documents |
 | **Stirling-PDF** | 8085 | Convert, merge, split, compress, and OCR PDFs — entirely local |
+| **ArchiveBox** | 8099 | Self-hosted internet archive — save full copies of any webpage: HTML, PDF, screenshot |
 
 ### Productivity
 | App | Port | Description |
@@ -141,6 +153,7 @@ That's it. It checks what your server needs, installs anything missing, then wal
 | **Planka** | 1337 | Kanban boards — self-hosted Trello |
 | **Miniflux** | 8070 | Minimalist RSS feed reader |
 | **Hoarder** | 3210 | AI-powered bookmark manager — save links, auto-tag, full-text search |
+| **Ghost** | 2368 | Professional blogging and newsletter platform — self-hosted Substack |
 
 ### Communication
 | App | Port | Description |
@@ -253,20 +266,18 @@ If you don't have a domain, all apps are still accessible by local IP (e.g. `htt
 
 ---
 
-## Dry run
-
-Preview the generated files without deploying anything:
+## CLI flags
 
 ```bash
-homelab-starter --dry-run
+homelab-starter           # full interactive install
+homelab-starter --dry-run # generate files but do not deploy
+homelab-starter --update  # re-generate files from existing .env (no prompts)
+homelab-starter --list    # browse all 58 available apps and exit
 ```
 
-Files land in `~/homelab-starter/`. Inspect and edit them, then deploy manually:
+**`--update`** is useful after pulling a new version of homelab-starter — it re-reads your existing `~/homelab-starter/.env`, detects which apps are installed from the current `docker-compose.yml`, regenerates everything with the latest config (new healthchecks, env vars, side files), and restarts your containers. Your secrets are preserved.
 
-```bash
-cd ~/homelab-starter
-docker compose up -d
-```
+**`--list`** works without Docker installed — useful for browsing the catalog on any machine before committing to a server.
 
 ---
 
@@ -278,10 +289,15 @@ Everything lives in `~/homelab-starter/` on your server:
 ~/homelab-starter/
 ├── docker-compose.yml   ← merged config for all selected apps
 ├── .env                 ← all secrets and config values — keep this private
-└── Caddyfile            ← generated if Caddy was selected
+├── Caddyfile            ← generated if Caddy was selected
+└── CONNECT.md           ← per-app instructions for clients, mobile apps, and devices
 ```
 
-To add or remove an app after initial setup, edit `docker-compose.yml` and re-run `docker compose up -d`.
+To re-generate after updating homelab-starter:
+
+```bash
+homelab-starter --update
+```
 
 ---
 

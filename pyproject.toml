@@ -51,9 +51,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://moooosik.github.io/homelab-starter"
+Homepage = "https://github.com/moooosik/homelab-starter"
 Repository = "https://github.com/moooosik/homelab-starter"
 "Bug Tracker" = "https://github.com/moooosik/homelab-starter/issues"
+Changelog = "https://github.com/moooosik/homelab-starter/blob/main/CHANGELOG.md"
 
 [project.scripts]
 homelab-starter = "homelab.cli:main"

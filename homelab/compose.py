@@ -1,6 +1,7 @@
 """Build and write a merged docker-compose.yml + .env from selected app entries."""
 
 import os
+import re
 import secrets
 from pathlib import Path
 
@@ -37,6 +38,8 @@ _AUTO_SECRETS = {
     "MATTERMOST_DB_PASSWORD": 32,
     "PIHOLE_PASSWORD": 16,
     "NAS_PASSWORD": 16,
+    "GHOST_DB_PASSWORD": 32,
+    "GHOST_DB_ROOT_PASSWORD": 32,
 }
 
 
@@ -59,6 +62,8 @@ def build(selected_ids: list[str], server_ip: str, user_config: dict) -> tuple[d
 
     env.update({k: user_config.get(k, "") for k in user_config})
     _fill_auto_secrets(env)
+    _expand_scrutiny_drives(services, env)
+    _set_app_url_defaults(selected_ids, env)
 
     compose = {
         "services": services,
@@ -90,6 +95,23 @@ def _fill_auto_secrets(env: dict) -> None:
             env[key] = secrets.token_urlsafe(length)
 
 
+def _expand_scrutiny_drives(services: dict, env: dict) -> None:
+    if "scrutiny" not in services:
+        return
+    raw = env.get("SCRUTINY_DRIVES", "/dev/sda")
+    drives = [d.strip() for d in raw.split(",") if d.strip()]
+    if not drives:
+        drives = ["/dev/sda"]
+    services["scrutiny"]["devices"] = drives
+    env["SCRUTINY_DRIVES"] = ",".join(drives)
+
+
+def _set_app_url_defaults(selected_ids: list[str], env: dict) -> None:
+    server_ip = env.get("SERVER_IP", "localhost")
+    if "ghost" in selected_ids and not env.get("GHOST_URL"):
+        env["GHOST_URL"] = f"http://{server_ip}:2368"
+
+
 def write_files(compose: dict, env: dict, deploy_dir: Path, selected_ids: list[str] | None = None) -> None:
     deploy_dir.mkdir(parents=True, exist_ok=True)
     compose_path = deploy_dir / "docker-compose.yml"
@@ -99,12 +121,21 @@ def write_files(compose: dict, env: dict, deploy_dir: Path, selected_ids: list[s
         yaml.dump(compose, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
     fd = os.open(env_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with open(fd, "w") as f:
-        for key, value in env.items():
-            safe_value = str(value).replace("\n", "").replace("\r", "")
-            f.write(f"{key}={safe_value}\n")
+    try:
+        with os.fdopen(fd, "w") as f:
+            for key, value in env.items():
+                safe_value = str(value).replace("\n", "").replace("\r", "")
+                f.write(f"{key}={safe_value}\n")
+    except BaseException:
+        os.close(fd)
+        raise
 
     if selected_ids:
         for app_id in selected_ids:
             for filename, content in APPS[app_id].get("side_files", {}).items():
-                (deploy_dir / filename).write_text(content)
+                expanded = re.sub(
+                    r"\{([A-Z][A-Z0-9_]*)\}",
+                    lambda m: str(env.get(m.group(1), m.group(0))),
+                    content,
+                )
+                (deploy_dir / filename).write_text(expanded)
