@@ -43,6 +43,10 @@ APPS: dict[str, dict] = {
         "port": 5006,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:5006 — create a new budget file on first visit",
+            "Mobile: use the Actual Budget web app in your phone browser at http://{SERVER_IP}:5006",
+        ],
         "services": {
             "actual": {
                 "image": "actualbudget/actual-server:latest",
@@ -85,9 +89,10 @@ APPS: dict[str, dict] = {
                     "POSTGRES_PASSWORD": "${NEXTCLOUD_DB_PASSWORD}",
                     "NEXTCLOUD_ADMIN_USER": "admin",
                     "NEXTCLOUD_ADMIN_PASSWORD": "${NEXTCLOUD_ADMIN_PASSWORD}",
+                    "NEXTCLOUD_TRUSTED_DOMAINS": "${SERVER_IP}",
                 },
                 "volumes": ["nextcloud-data:/var/www/html"],
-                "depends_on": ["nextcloud-db"],
+                "depends_on": {"nextcloud-db": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
                 "labels": [WATCHTOWER_LABEL],
             },
@@ -95,6 +100,13 @@ APPS: dict[str, dict] = {
                 "image": "postgres:15-alpine",
                 "container_name": "nextcloud-db",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U nextcloud"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_DB": "nextcloud",
                     "POSTGRES_USER": "nextcloud",
@@ -147,6 +159,12 @@ APPS: dict[str, dict] = {
         "port": 8082,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "File browser UI: open http://{SERVER_IP}:8082 — login: admin / admin (change immediately)",
+            "Windows SMB: open File Explorer, type \\\\{SERVER_IP}\\nas in the address bar",
+            "macOS SMB: Finder > Go > Connect to Server > smb://{SERVER_IP}/nas",
+            "Linux SMB: mount -t cifs //{SERVER_IP}/nas /mnt/point -o username=homelab",
+        ],
         "guided_prompts": [
             {"key": "NAS_PATH", "label": "Path to share as NAS storage", "default": "/mnt/nas"},
             {"key": "NAS_USER", "label": "SMB share username", "default": "nas"},
@@ -315,7 +333,7 @@ APPS: dict[str, dict] = {
                     "${IMMICH_UPLOAD_PATH}:/usr/src/app/upload",
                     "/etc/localtime:/etc/localtime:ro",
                 ],
-                "depends_on": ["immich-redis", "immich-postgres"],
+                "depends_on": {"immich-redis": {"condition": "service_healthy"}, "immich-postgres": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
                 "labels": [WATCHTOWER_LABEL],
             },
@@ -335,15 +353,28 @@ APPS: dict[str, dict] = {
                 "labels": [WATCHTOWER_LABEL],
             },
             "immich-redis": {
-                "image": "redis:6.2-alpine",
+                "image": "redis:7-alpine",
                 "container_name": "immich-redis",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD", "redis-cli", "ping"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                },
                 "networks": ["homelab"],
             },
             "immich-postgres": {
                 "image": "tensorchord/pgvecto-rs:pg14-v0.2.0",
                 "container_name": "immich-postgres",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U postgres"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_PASSWORD": "${IMMICH_DB_PASSWORD}",
                     "POSTGRES_USER": "postgres",
@@ -475,6 +506,12 @@ APPS: dict[str, dict] = {
         "port": 8989,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8989 — Sonarr will walk you through initial setup",
+            "Add a root folder: Settings > Media Management > Root Folders > /media",
+            "Connect qBittorrent: Settings > Download Clients > Add > qBittorrent > host=qbittorrent, port=8080",
+            "Connect Prowlarr: Settings > Indexers > Add Indexer > Torznab (point to Prowlarr)",
+        ],
         "guided_prompts": [
             {"key": "MEDIA_PATH", "label": "Path to your media library", "default": "/mnt/media"},
             {"key": "DOWNLOADS_PATH", "label": "Path to your downloads folder", "default": "/mnt/downloads"},
@@ -508,6 +545,12 @@ APPS: dict[str, dict] = {
         "port": 7878,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:7878 — Radarr will walk you through initial setup",
+            "Add a root folder: Settings > Media Management > Root Folders > /media",
+            "Connect qBittorrent: Settings > Download Clients > Add > qBittorrent > host=qbittorrent, port=8080",
+            "Connect Prowlarr: Settings > Indexers > Add Indexer > Torznab (point to Prowlarr)",
+        ],
         "guided_prompts": [
             {"key": "MEDIA_PATH", "label": "Path to your media library", "default": "/mnt/media"},
             {"key": "DOWNLOADS_PATH", "label": "Path to your downloads folder", "default": "/mnt/downloads"},
@@ -541,6 +584,11 @@ APPS: dict[str, dict] = {
         "port": 9696,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:9696 — add your indexers (torrent sites) here",
+            "Connect to Sonarr: Settings > Apps > Add Application > Sonarr > http://sonarr:8989",
+            "Connect to Radarr: Settings > Apps > Add Application > Radarr > http://radarr:7878",
+        ],
         "services": {
             "prowlarr": {
                 "image": "lscr.io/linuxserver/prowlarr:latest",
@@ -567,6 +615,10 @@ APPS: dict[str, dict] = {
         "port": 8091,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8091 — default login is admin / adminadmin (change it immediately)",
+            "Sonarr/Radarr connect to this using host=qbittorrent, port=8080 (internal Docker port)",
+        ],
         "guided_prompts": [
             {"key": "DOWNLOADS_PATH", "label": "Path to your downloads folder", "default": "/mnt/downloads"},
         ],
@@ -603,6 +655,11 @@ APPS: dict[str, dict] = {
         "port": 5055,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:5055 — sign in with your Jellyfin account to configure",
+            "Connect Jellyfin: Setup Wizard > Jellyfin > http://jellyfin:8096",
+            "Share http://{SERVER_IP}:5055 with family — they can request movies and shows",
+        ],
         "services": {
             "jellyseerr": {
                 "image": "fallenbagel/jellyseerr:latest",
@@ -627,6 +684,12 @@ APPS: dict[str, dict] = {
         "port": 6767,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:6767 to configure Bazarr",
+            "Connect Sonarr: Settings > Sonarr > host=sonarr, port=8989, API key from Sonarr > Settings > General",
+            "Connect Radarr: Settings > Radarr > host=radarr, port=7878, API key from Radarr > Settings > General",
+            "Add subtitle providers: Settings > Subtitles > pick OpenSubtitles, Subscene, etc.",
+        ],
         "guided_prompts": [
             {"key": "MEDIA_PATH", "label": "Path to your media library", "default": "/mnt/media"},
         ],
@@ -675,7 +738,7 @@ APPS: dict[str, dict] = {
                 "networks": ["homelab"],
             },
             "open-webui": {
-                "image": "ghcr.io/open-webui/open-webui:main",
+                "image": "ghcr.io/open-webui/open-webui:latest",
                 "container_name": "open-webui",
                 "restart": "unless-stopped",
                 "ports": ["3030:8080"],
@@ -688,6 +751,72 @@ APPS: dict[str, dict] = {
             },
         },
         "volumes": {"ollama-data": None, "open-webui-data": None},
+    },
+
+    "flowise": {
+        "name": "Flowise",
+        "description": "Drag-and-drop AI workflow builder — chain LLMs, tools, and APIs visually",
+        "category": "AI",
+        "port": 3100,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "guided_prompts": [
+            {"key": "FLOWISE_USERNAME", "label": "Flowise admin username", "default": "admin"},
+            {"key": "FLOWISE_PASSWORD", "label": "Flowise admin password", "default": "", "secret": True},
+        ],
+        "connect": [
+            "Web UI: http://{SERVER_IP}:3100 — build AI pipelines visually",
+            "To use with local Ollama: add an Ollama node and set Base URL to http://ollama:11434",
+            "API endpoint for your flows: http://{SERVER_IP}:3100/api/v1/prediction/<flow-id>",
+        ],
+        "services": {
+            "flowise": {
+                "image": "flowiseai/flowise:latest",
+                "container_name": "flowise",
+                "restart": "unless-stopped",
+                "ports": ["3100:3000"],
+                "environment": {
+                    "FLOWISE_USERNAME": "${FLOWISE_USERNAME}",
+                    "FLOWISE_PASSWORD": "${FLOWISE_PASSWORD}",
+                    "DATABASE_PATH": "/root/.flowise",
+                    "SECRETKEY_PATH": "/root/.flowise",
+                    "LOG_PATH": "/root/.flowise/logs",
+                },
+                "volumes": ["flowise-data:/root/.flowise"],
+                "networks": ["homelab"],
+            },
+        },
+        "volumes": {"flowise-data": None},
+    },
+
+    "anythingllm": {
+        "name": "AnythingLLM",
+        "description": "Chat with your documents using local or cloud LLMs — private RAG on your own server",
+        "category": "AI",
+        "port": 3110,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Web UI: http://{SERVER_IP}:3110 — upload docs and start chatting",
+            "First launch: create a workspace, upload PDFs/docs, then chat",
+            "To use local Ollama: Settings → LLM Preference → Ollama → http://ollama:11434",
+        ],
+        "services": {
+            "anythingllm": {
+                "image": "mintplexlabs/anythingllm:latest",
+                "container_name": "anythingllm",
+                "restart": "unless-stopped",
+                "ports": ["3110:3001"],
+                "environment": {
+                    "STORAGE_DIR": "/app/server/storage",
+                    "UID": "1000",
+                    "GID": "1000",
+                },
+                "volumes": ["anythingllm-storage:/app/server/storage"],
+                "networks": ["homelab"],
+            },
+        },
+        "volumes": {"anythingllm-storage": None},
     },
 
     # -------------------------------------------------------------------------
@@ -728,6 +857,10 @@ APPS: dict[str, dict] = {
         "port": 9283,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:9283 — default login is admin / admin (change it in Settings)",
+            "Mobile app: install Grocy for Android or iOS, then set server to http://{SERVER_IP}:9283",
+        ],
         "services": {
             "grocy": {
                 "image": "lscr.io/linuxserver/grocy:latest",
@@ -749,6 +882,10 @@ APPS: dict[str, dict] = {
         "port": 9925,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:9925 — default login is changeme@example.com / MyPassword (change immediately)",
+            "Import recipes by URL: click + > Create Recipe > Import from URL",
+        ],
         "services": {
             "mealie": {
                 "image": "ghcr.io/mealie-recipes/mealie:latest",
@@ -780,6 +917,11 @@ APPS: dict[str, dict] = {
         "port": 80,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Edit ~/homelab-starter/Caddyfile to set up your subdomains — stubs are pre-generated",
+            "Reload config after changes: docker exec caddy caddy reload --config /etc/caddy/Caddyfile",
+            "Caddy auto-provisions HTTPS certificates when your domain DNS is pointed at this server",
+        ],
         "services": {
             "caddy": {
                 "image": "caddy:latest",
@@ -823,6 +965,12 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {"duckdns-config": None},
+        "connect": [
+            "Get your token at https://www.duckdns.org — log in and copy the token shown at the top",
+            "Your subdomain will resolve to your public IP within a few minutes of first start",
+            "Verify: ping <subdomain>.duckdns.org from any external device",
+            "docker logs duckdns | tail — look for 'OK' to confirm the update succeeded",
+        ],
     },
 
     "tailscale": {
@@ -867,6 +1015,11 @@ APPS: dict[str, dict] = {
         "port": 8053,
         "url_path": "/admin",
         "watchtower_exclude": False,
+        "connect": [
+            "Admin UI: http://{SERVER_IP}:8053/admin — login with your Pi-hole password",
+            "To block ads on a device: set its DNS server to {SERVER_IP} in your router or device network settings",
+            "To block ads network-wide: set your router's DNS to {SERVER_IP} (check your router admin for 'DNS server' setting)",
+        ],
         "guided_prompts": [
             {"key": "PIHOLE_PASSWORD", "label": "Pi-hole web admin password", "default": "admin", "secret": True},
         ],
@@ -900,6 +1053,11 @@ APPS: dict[str, dict] = {
         "port": 8054,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Setup wizard runs on first visit: http://{SERVER_IP}:8054 — follow the prompts",
+            "After setup the dashboard moves to http://{SERVER_IP}:8054",
+            "Point your router or devices' DNS to {SERVER_IP} to start blocking ads network-wide",
+        ],
         "services": {
             "adguardhome": {
                 "image": "adguard/adguardhome:latest",
@@ -918,6 +1076,36 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {"adguardhome-work": None, "adguardhome-conf": None},
+    },
+
+    "librespeed": {
+        "name": "LibreSpeed",
+        "description": "Self-hosted network speed test — measure download, upload, and ping from any browser",
+        "category": "Networking",
+        "port": 8088,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8088 and click Go — tests your speed to this server",
+            "Share with others on your network to test their connection to the server",
+        ],
+        "services": {
+            "librespeed": {
+                "image": "lscr.io/linuxserver/librespeed:latest",
+                "container_name": "librespeed",
+                "restart": "unless-stopped",
+                "ports": ["8088:80"],
+                "environment": {
+                    "TZ": "${TZ}",
+                    "PUID": "1000",
+                    "PGID": "1000",
+                    "MODE": "standalone",
+                },
+                "volumes": ["librespeed-config:/config"],
+                "networks": ["homelab"],
+            }
+        },
+        "volumes": {"librespeed-config": None},
     },
 
     # -------------------------------------------------------------------------
@@ -948,6 +1136,12 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {"crowdsec-db": None, "crowdsec-config": None},
+        "connect": [
+            "CrowdSec runs silently in the background — no UI needed for basic protection",
+            "Check alerts: docker exec crowdsec cscli alerts list",
+            "Check decisions (blocked IPs): docker exec crowdsec cscli decisions list",
+            "If using Caddy, add the bouncer: docker exec crowdsec cscli bouncers add caddy-bouncer and copy the key into your Caddyfile",
+        ],
     },
 
     "authentik": {
@@ -957,6 +1151,11 @@ APPS: dict[str, dict] = {
         "port": 9001,
         "url_path": "/if/user/",
         "watchtower_exclude": True,
+        "connect": [
+            "Open http://{SERVER_IP}:9001/if/flow/initial-setup/ to set the admin password",
+            "Admin panel: http://{SERVER_IP}:9001/if/admin/",
+            "To protect an app: Admin > Applications > Create > add a proxy provider pointing to the app's internal URL",
+        ],
         "services": {
             "authentik-server": {
                 "image": "ghcr.io/goauthentik/server:latest",
@@ -973,7 +1172,7 @@ APPS: dict[str, dict] = {
                     "AUTHENTIK_SECRET_KEY": "${AUTHENTIK_SECRET_KEY}",
                 },
                 "volumes": ["authentik-media:/media", "authentik-certs:/certs"],
-                "depends_on": ["authentik-postgres", "authentik-redis"],
+                "depends_on": {"authentik-postgres": {"condition": "service_healthy"}, "authentik-redis": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
                 "labels": [WATCHTOWER_LABEL],
             },
@@ -991,7 +1190,7 @@ APPS: dict[str, dict] = {
                     "AUTHENTIK_SECRET_KEY": "${AUTHENTIK_SECRET_KEY}",
                 },
                 "volumes": ["authentik-media:/media", "authentik-certs:/certs"],
-                "depends_on": ["authentik-postgres", "authentik-redis"],
+                "depends_on": {"authentik-postgres": {"condition": "service_healthy"}, "authentik-redis": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
                 "labels": [WATCHTOWER_LABEL],
             },
@@ -999,6 +1198,13 @@ APPS: dict[str, dict] = {
                 "image": "postgres:15-alpine",
                 "container_name": "authentik-postgres",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U authentik"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_DB": "authentik",
                     "POSTGRES_USER": "authentik",
@@ -1011,6 +1217,12 @@ APPS: dict[str, dict] = {
                 "image": "redis:alpine",
                 "container_name": "authentik-redis",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD", "redis-cli", "ping"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                },
                 "networks": ["homelab"],
             },
         },
@@ -1031,6 +1243,11 @@ APPS: dict[str, dict] = {
         "port": 8000,
         "url_path": "",
         "watchtower_exclude": True,
+        "connect": [
+            "Open http://{SERVER_IP}:8000 — login: admin / see credentials panel above",
+            "Upload documents via the web UI, or drop files into the consume folder",
+            "Mobile scan: use the Paperless app (iOS/Android) — Server URL: http://{SERVER_IP}:8000",
+        ],
         "services": {
             "paperless-ngx": {
                 "image": "ghcr.io/paperless-ngx/paperless-ngx:latest",
@@ -1055,7 +1272,7 @@ APPS: dict[str, dict] = {
                     "paperless-export:/usr/src/paperless/export",
                     "paperless-consume:/usr/src/paperless/consume",
                 ],
-                "depends_on": ["paperless-db", "paperless-redis"],
+                "depends_on": {"paperless-db": {"condition": "service_healthy"}, "paperless-redis": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
                 "labels": [WATCHTOWER_LABEL],
             },
@@ -1063,12 +1280,25 @@ APPS: dict[str, dict] = {
                 "image": "redis:7-alpine",
                 "container_name": "paperless-redis",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD", "redis-cli", "ping"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                },
                 "networks": ["homelab"],
             },
             "paperless-db": {
                 "image": "postgres:15-alpine",
                 "container_name": "paperless-db",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U paperless"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_DB": "paperless",
                     "POSTGRES_USER": "paperless",
@@ -1094,6 +1324,9 @@ APPS: dict[str, dict] = {
         "port": 8085,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8085 — no login required, all tools available immediately",
+        ],
         "services": {
             "stirling-pdf": {
                 "image": "frooodle/s-pdf:latest",
@@ -1111,6 +1344,35 @@ APPS: dict[str, dict] = {
         "volumes": {"stirling-pdf-data": None, "stirling-pdf-configs": None},
     },
 
+    "archivebox": {
+        "name": "ArchiveBox",
+        "description": "Self-hosted internet archive — save full copies of any webpage: HTML, PDF, screenshot",
+        "category": "Documents",
+        "port": 8099,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8099 — create your admin account with the on-screen prompt",
+            "Add URLs to archive via the web UI, CLI, or by importing bookmarks/RSS feeds",
+            "Browser extension: install ArchiveBox Exporter to save pages in one click",
+        ],
+        "services": {
+            "archivebox": {
+                "image": "archivebox/archivebox:latest",
+                "container_name": "archivebox",
+                "restart": "unless-stopped",
+                "ports": ["8099:8000"],
+                "environment": {
+                    "ALLOWED_HOSTS": "*",
+                    "MEDIA_MAX_SIZE": "750m",
+                },
+                "volumes": ["archivebox-data:/data"],
+                "networks": ["homelab"],
+            }
+        },
+        "volumes": {"archivebox-data": None},
+    },
+
     # -------------------------------------------------------------------------
     # PRODUCTIVITY
     # -------------------------------------------------------------------------
@@ -1122,6 +1384,10 @@ APPS: dict[str, dict] = {
         "port": 5678,
         "url_path": "",
         "watchtower_exclude": True,
+        "connect": [
+            "Open http://{SERVER_IP}:5678 — create your owner account on first visit",
+            "Browse community workflows at https://n8n.io/workflows to get started fast",
+        ],
         "services": {
             "n8n": {
                 "image": "n8nio/n8n:latest",
@@ -1175,13 +1441,20 @@ APPS: dict[str, dict] = {
                     "gitea-data:/data",
                     "/etc/localtime:/etc/localtime:ro",
                 ],
-                "depends_on": ["gitea-db"],
+                "depends_on": {"gitea-db": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
             },
             "gitea-db": {
                 "image": "postgres:15-alpine",
                 "container_name": "gitea-db",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U gitea"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_DB": "gitea",
                     "POSTGRES_USER": "gitea",
@@ -1201,6 +1474,10 @@ APPS: dict[str, dict] = {
         "port": 6875,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:6875 — login: admin@example.com / see credentials panel above",
+            "Change the admin email: Users > Admin > Edit",
+        ],
         # Auto-secrets: BOOKSTACK_DB_PASSWORD, BOOKSTACK_ROOT_PASSWORD
         "services": {
             "bookstack": {
@@ -1219,13 +1496,20 @@ APPS: dict[str, dict] = {
                     "DB_DATABASE": "bookstack",
                 },
                 "volumes": ["bookstack-config:/config"],
-                "depends_on": ["bookstack-db"],
+                "depends_on": {"bookstack-db": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
             },
             "bookstack-db": {
                 "image": "mariadb:10.11",
                 "container_name": "bookstack-db",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD", "mysqladmin", "ping", "-h", "localhost"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "MYSQL_ROOT_PASSWORD": "${BOOKSTACK_ROOT_PASSWORD}",
                     "MYSQL_DATABASE": "bookstack",
@@ -1246,6 +1530,10 @@ APPS: dict[str, dict] = {
         "port": 3456,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:3456 — register a new account on first visit",
+            "Mobile: install the Vikunja app or use the web UI in your mobile browser",
+        ],
         # Auto-secrets: VIKUNJA_DB_PASSWORD, VIKUNJA_JWT_SECRET
         "services": {
             "vikunja": {
@@ -1264,13 +1552,20 @@ APPS: dict[str, dict] = {
                     "TZ": "${TZ}",
                 },
                 "volumes": ["vikunja-files:/app/vikunja/files"],
-                "depends_on": ["vikunja-db"],
+                "depends_on": {"vikunja-db": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
             },
             "vikunja-db": {
                 "image": "postgres:15-alpine",
                 "container_name": "vikunja-db",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U vikunja"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_DB": "vikunja",
                     "POSTGRES_USER": "vikunja",
@@ -1290,6 +1585,9 @@ APPS: dict[str, dict] = {
         "port": 1337,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:1337 — register the first account (it becomes admin)",
+        ],
         # Auto-secrets: PLANKA_DB_PASSWORD, PLANKA_SECRET_KEY
         "services": {
             "planka": {
@@ -1308,13 +1606,20 @@ APPS: dict[str, dict] = {
                     "planka-backgrounds:/app/public/project-background-images",
                     "planka-attachments:/app/private/attachments",
                 ],
-                "depends_on": ["planka-db"],
+                "depends_on": {"planka-db": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
             },
             "planka-db": {
                 "image": "postgres:15-alpine",
                 "container_name": "planka-db",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U planka"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_DB": "planka",
                     "POSTGRES_USER": "planka",
@@ -1339,6 +1644,11 @@ APPS: dict[str, dict] = {
         "port": 8070,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8070 — login: admin / see credentials panel above",
+            "Add feeds: Feeds > Add Feed > paste any RSS/Atom URL",
+            "Use a Fever-compatible RSS app (Reeder, NetNewsWire) by pointing it to http://{SERVER_IP}:8070/fever/",
+        ],
         # Auto-secrets: MINIFLUX_DB_PASSWORD, MINIFLUX_ADMIN_PASSWORD
         "services": {
             "miniflux": {
@@ -1353,13 +1663,20 @@ APPS: dict[str, dict] = {
                     "ADMIN_USERNAME": "admin",
                     "ADMIN_PASSWORD": "${MINIFLUX_ADMIN_PASSWORD}",
                 },
-                "depends_on": ["miniflux-db"],
+                "depends_on": {"miniflux-db": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
             },
             "miniflux-db": {
                 "image": "postgres:15-alpine",
                 "container_name": "miniflux-db",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U miniflux"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_DB": "miniflux",
                     "POSTGRES_USER": "miniflux",
@@ -1379,6 +1696,11 @@ APPS: dict[str, dict] = {
         "port": 3210,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:3210 — create an account on first visit",
+            "Browser extension: install Hoarder for Chrome or Firefox to save pages in one click",
+            "Mobile: install the Hoarder app (iOS/Android) and set server to http://{SERVER_IP}:3210",
+        ],
         # Auto-secrets: HOARDER_SECRET, HOARDER_MEILI_KEY
         "guided_prompts": [
             {
@@ -1419,6 +1741,65 @@ APPS: dict[str, dict] = {
             },
         },
         "volumes": {"hoarder-data": None, "hoarder-meili": None},
+    },
+
+    "ghost": {
+        "name": "Ghost",
+        "description": "Professional blogging and newsletter platform — self-hosted Substack",
+        "category": "Productivity",
+        "port": 2368,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:2368/ghost — complete the setup wizard to create your site",
+            "Your blog is live at http://{SERVER_IP}:2368",
+            "Members can subscribe at http://{SERVER_IP}:2368/#subscribe",
+        ],
+        "guided_prompts": [
+            {"key": "GHOST_URL", "label": "Public URL for your Ghost site (e.g. https://blog.example.com)", "default": "http://localhost:2368"},
+        ],
+        "services": {
+            "ghost": {
+                "image": "ghost:latest",
+                "container_name": "ghost",
+                "restart": "unless-stopped",
+                "ports": ["2368:2368"],
+                "environment": {
+                    "database__client": "mysql",
+                    "database__connection__host": "ghost-db",
+                    "database__connection__user": "ghost",
+                    "database__connection__password": "${GHOST_DB_PASSWORD}",
+                    "database__connection__database": "ghost",
+                    "url": "${GHOST_URL}",
+                },
+                "volumes": ["ghost-content:/var/lib/ghost/content"],
+                "depends_on": {
+                    "ghost-db": {"condition": "service_healthy"},
+                },
+                "networks": ["homelab"],
+            },
+            "ghost-db": {
+                "image": "mysql:8.0",
+                "container_name": "ghost-db",
+                "restart": "unless-stopped",
+                "environment": {
+                    "MYSQL_ROOT_PASSWORD": "${GHOST_DB_ROOT_PASSWORD}",
+                    "MYSQL_USER": "ghost",
+                    "MYSQL_PASSWORD": "${GHOST_DB_PASSWORD}",
+                    "MYSQL_DATABASE": "ghost",
+                },
+                "volumes": ["ghost-db:/var/lib/mysql"],
+                "healthcheck": {
+                    "test": ["CMD", "mysqladmin", "ping", "-h", "localhost"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
+                "networks": ["homelab"],
+            },
+        },
+        "volumes": {"ghost-content": None, "ghost-db": None},
     },
 
     # -------------------------------------------------------------------------
@@ -1479,13 +1860,26 @@ APPS: dict[str, dict] = {
                 '  "default_server_config": {\n'
                 '    "m.homeserver": {\n'
                 '      "base_url": "http://synapse:8448",\n'
-                '      "server_name": "matrix.local"\n'
+                '      "server_name": "{MATRIX_SERVER_NAME}"\n'
                 '    }\n'
                 '  }\n'
                 '}\n'
             ),
         },
         "services": {
+            "synapse-init": {
+                # Generates homeserver.yaml on first boot (idempotent — skips if file exists).
+                "image": "matrixdotorg/synapse:latest",
+                "container_name": "synapse-init",
+                "command": "generate",
+                "restart": "no",
+                "environment": {
+                    "SYNAPSE_SERVER_NAME": "${MATRIX_SERVER_NAME}",
+                    "SYNAPSE_REPORT_STATS": "no",
+                },
+                "volumes": ["synapse-data:/data"],
+                "networks": ["homelab"],
+            },
             "synapse": {
                 "image": "matrixdotorg/synapse:latest",
                 "container_name": "synapse",
@@ -1494,8 +1888,12 @@ APPS: dict[str, dict] = {
                 "environment": {
                     "SYNAPSE_SERVER_NAME": "${MATRIX_SERVER_NAME}",
                     "SYNAPSE_REPORT_STATS": "no",
+                    "SYNAPSE_REGISTRATION_SHARED_SECRET": "${MATRIX_REGISTRATION_SECRET}",
                 },
                 "volumes": ["synapse-data:/data"],
+                "depends_on": {
+                    "synapse-init": {"condition": "service_completed_successfully"},
+                },
                 "networks": ["homelab"],
             },
             "element": {
@@ -1539,13 +1937,20 @@ APPS: dict[str, dict] = {
                     "mattermost-config:/mattermost/config",
                     "mattermost-plugins:/mattermost/plugins",
                 ],
-                "depends_on": ["mattermost-db"],
+                "depends_on": {"mattermost-db": {"condition": "service_healthy"}},
                 "networks": ["homelab"],
             },
             "mattermost-db": {
                 "image": "postgres:15-alpine",
                 "container_name": "mattermost-db",
                 "restart": "unless-stopped",
+                "healthcheck": {
+                    "test": ["CMD-SHELL", "pg_isready -U mattermost"],
+                    "interval": "10s",
+                    "timeout": "5s",
+                    "retries": 5,
+                    "start_period": "30s",
+                },
                 "environment": {
                     "POSTGRES_DB": "mattermost",
                     "POSTGRES_USER": "mattermost",
@@ -1574,6 +1979,11 @@ APPS: dict[str, dict] = {
         "port": 3001,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:3001 — create your admin account on first visit",
+            "Add a monitor: New Monitor > HTTP(s) > paste any of the URLs from this guide",
+            "Set up notifications: Settings > Notifications > add Telegram, email, or ntfy",
+        ],
         "services": {
             "uptime-kuma": {
                 "image": "louislam/uptime-kuma:latest",
@@ -1597,6 +2007,9 @@ APPS: dict[str, dict] = {
         "port": 8888,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8888 — no login required, all container logs visible immediately",
+        ],
         "services": {
             "dozzle": {
                 "image": "amir20/dozzle:latest",
@@ -1617,6 +2030,10 @@ APPS: dict[str, dict] = {
         "port": 8090,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8090 — create your admin account on first visit",
+            "To monitor other machines: add a system in the UI, then install the beszel-agent on that machine",
+        ],
         "services": {
             "beszel": {
                 "image": "henrygd/beszel:latest",
@@ -1637,6 +2054,10 @@ APPS: dict[str, dict] = {
         "port": 5000,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:5000 — no login required by default",
+            "Add a watch: paste any URL, set check interval, add notification (email, ntfy, etc.)",
+        ],
         "services": {
             "changedetection": {
                 "image": "ghcr.io/dgtlmoon/changedetection.io:latest",
@@ -1658,6 +2079,17 @@ APPS: dict[str, dict] = {
         "port": 8083,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8083 — drive health data appears automatically after startup",
+            "Find your drives: run 'lsblk' on your server to list device paths before setup",
+        ],
+        "guided_prompts": [
+            {
+                "key": "SCRUTINY_DRIVES",
+                "label": "Drive paths to monitor — comma-separated (e.g. /dev/sda  or  /dev/sda,/dev/nvme0n1)",
+                "default": "/dev/sda",
+            },
+        ],
         "services": {
             "scrutiny": {
                 "image": "ghcr.io/analogj/scrutiny:master-omnibus",
@@ -1665,7 +2097,7 @@ APPS: dict[str, dict] = {
                 "restart": "unless-stopped",
                 "ports": ["8083:8080"],
                 "cap_add": ["SYS_RAWIO", "SYS_ADMIN"],
-                "devices": ["/dev/sda"],  # extend this list for additional drives
+                "devices": "__SCRUTINY_DRIVES__",
                 "volumes": [
                     "/run/udev:/run/udev:ro",
                     "scrutiny-config:/opt/scrutiny/config",
@@ -1684,6 +2116,11 @@ APPS: dict[str, dict] = {
         "port": 3002,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Grafana: http://{SERVER_IP}:3002 — login: admin / see credentials panel above",
+            "Add Prometheus data source: Connections > Data Sources > Prometheus > URL: http://prometheus:9090",
+            "Import a dashboard: Dashboards > Import > enter ID 1860 for Node Exporter Full",
+        ],
         # Auto-secret: GRAFANA_ADMIN_PASSWORD
         "side_files": {
             "prometheus.yml": (
@@ -1735,6 +2172,9 @@ APPS: dict[str, dict] = {
         "port": 19999,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:19999 — metrics appear immediately, no configuration needed",
+        ],
         # network_mode: host — no "networks" key for this service
         "services": {
             "netdata": {
@@ -1743,7 +2183,6 @@ APPS: dict[str, dict] = {
                 "restart": "unless-stopped",
                 "network_mode": "host",
                 "pid": "host",
-                "ports": ["19999:19999"],
                 "cap_add": ["SYS_PTRACE", "SYS_ADMIN"],
                 "security_opt": ["apparmor:unconfined"],
                 "volumes": [
@@ -1773,6 +2212,10 @@ APPS: dict[str, dict] = {
         "port": 8020,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:8020 — create an account on first visit",
+            "Create a check, then add 'curl -fsS http://{SERVER_IP}:8020/ping/<uuid>' to your cron job",
+        ],
         # Auto-secret: HEALTHCHECKS_SECRET_KEY
         "services": {
             "healthchecks": {
@@ -1802,6 +2245,10 @@ APPS: dict[str, dict] = {
         "port": 9000,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Open http://{SERVER_IP}:9000 — create your admin account on first visit",
+            "Select 'Get Started' to manage the local Docker environment",
+        ],
         "services": {
             "portainer": {
                 "image": "portainer/portainer-ce:latest",
@@ -1825,6 +2272,10 @@ APPS: dict[str, dict] = {
         "port": 3000,
         "url_path": "",
         "watchtower_exclude": False,
+        "connect": [
+            "Bookmark http://{SERVER_IP}:3000 — this is your homelab home page",
+            "All your selected apps are pre-configured as tiles — edit ~/homelab-starter/homepage-config/services.yaml to customize",
+        ],
         "services": {
             "homepage": {
                 "image": "ghcr.io/gethomepage/homepage:latest",
@@ -1832,13 +2283,13 @@ APPS: dict[str, dict] = {
                 "restart": "unless-stopped",
                 "ports": ["3000:3000"],
                 "volumes": [
-                    "homepage-config:/app/config",
+                    "./homepage-config:/app/config",
                     "/var/run/docker.sock:/var/run/docker.sock",
                 ],
                 "networks": ["homelab"],
             }
         },
-        "volumes": {"homepage-config": None},
+        "volumes": {},
     },
 
     # -------------------------------------------------------------------------
@@ -1865,6 +2316,12 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {},
+        "connect": [
+            "Watchtower runs silently — no UI or login needed",
+            "It checks for image updates nightly at 4 AM and restarts updated containers automatically",
+            "View update history: docker logs watchtower",
+            "Apps pinned to specific versions (Immich, Vaultwarden) are excluded from auto-updates",
+        ],
     },
 
     "autoheal": {
@@ -1885,6 +2342,11 @@ APPS: dict[str, dict] = {
             }
         },
         "volumes": {},
+        "connect": [
+            "Autoheal runs silently — no UI or login needed",
+            "It monitors all containers with healthchecks and restarts any that become unhealthy",
+            "View restart events: docker logs autoheal",
+        ],
     },
 }
 
@@ -1896,12 +2358,12 @@ CATEGORIES: dict[str, list[str]] = {
     "Your Digital Life": ["vaultwarden", "actual", "nextcloud", "syncthing", "baikal", "nas"],
     "Media": ["jellyfin", "plex", "immich", "navidrome", "kavita", "audiobookshelf"],
     "Media Automation": ["sonarr", "radarr", "prowlarr", "qbittorrent", "jellyseerr", "bazarr"],
-    "AI": ["ai"],
+    "AI": ["ai", "flowise", "anythingllm"],
     "Smart Home": ["homeassistant", "grocy", "mealie"],
-    "Networking": ["caddy", "duckdns", "tailscale", "pihole", "adguardhome"],
+    "Networking": ["caddy", "duckdns", "tailscale", "pihole", "adguardhome", "librespeed"],
     "Security": ["crowdsec", "authentik"],
-    "Documents": ["paperless", "stirling-pdf"],
-    "Productivity": ["n8n", "gitea", "bookstack", "vikunja", "planka", "miniflux", "hoarder"],
+    "Documents": ["paperless", "stirling-pdf", "archivebox"],
+    "Productivity": ["n8n", "gitea", "bookstack", "vikunja", "planka", "miniflux", "hoarder", "ghost"],
     "Communication": ["matrix", "mattermost", "ntfy"],
     "Monitoring": ["uptime-kuma", "dozzle", "beszel", "changedetection", "scrutiny", "grafana", "netdata", "healthchecks"],
     "Management": ["portainer", "homepage"],

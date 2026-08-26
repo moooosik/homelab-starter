@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import click
+import yaml
 import questionary
 from rich.console import Console
 from rich.panel import Panel
@@ -34,8 +35,19 @@ BANNER = """
 
 @click.command()
 @click.option("--dry-run", is_flag=True, help="Generate files but do not deploy.")
-def main(dry_run: bool) -> None:
+@click.option("--list", "list_apps", is_flag=True, help="List all available apps and exit.")
+@click.option("--update", "do_update", is_flag=True, help="Re-generate files from existing .env without re-running the installer.")
+def main(dry_run: bool, list_apps: bool, do_update: bool) -> None:
     console.print(Panel(BANNER.strip(), border_style="cyan", expand=False))
+
+    if list_apps:
+        _print_app_catalog()
+        return
+
+    if do_update:
+        _run_update(dry_run)
+        return
+
     console.print(
         "Interactive homelab bootstrap. Space = toggle, Enter = confirm.\n",
         style="dim",
@@ -107,6 +119,23 @@ def main(dry_run: bool) -> None:
     if "watchtower" not in selected_ids:
         selected_ids.append("watchtower")
 
+    # Port conflict: Pi-hole and AdGuard Home both bind port 53
+    if "pihole" in selected_ids and "adguardhome" in selected_ids:
+        console.print(
+            "\n[bold yellow]Port conflict:[/bold yellow] Pi-hole and AdGuard Home both use port 53.\n"
+            "Only one DNS blocker can run at a time. Which one do you want to keep?\n"
+        )
+        dns_choice = questionary.select(
+            "Keep which DNS blocker?",
+            choices=[
+                questionary.Choice("Pi-hole", value="pihole"),
+                questionary.Choice("AdGuard Home", value="adguardhome"),
+            ],
+        ).ask()
+        if dns_choice is None:
+            sys.exit(0)
+        selected_ids.remove("pihole" if dns_choice == "adguardhome" else "adguardhome")
+
     # Custom domain
     has_domain = questionary.confirm(
         "Do you have a custom domain pointed at this server?",
@@ -146,6 +175,10 @@ def main(dry_run: bool) -> None:
     if "caddy" in selected_ids:
         _write_caddyfile(selected_ids, domain or server_ip)
 
+    # Generate Homepage services.yaml if Homepage selected
+    if "homepage" in selected_ids:
+        _write_homepage_services(selected_ids, server_ip)
+
     compose_builder.write_files(compose_dict, env_dict, DEPLOY_DIR, selected_ids)
 
     if dry_run:
@@ -181,6 +214,94 @@ def main(dry_run: bool) -> None:
         _print_domain_instructions(domain, selected_ids)
 
 
+def _run_update(dry_run: bool) -> None:
+    """Re-generate docker-compose.yml and .env from the existing .env file."""
+    env_path = DEPLOY_DIR / ".env"
+    compose_path = DEPLOY_DIR / "docker-compose.yml"
+
+    if not env_path.exists():
+        console.print(
+            "[bold red]No existing .env found.[/bold red] "
+            f"Run [bold]homelab-starter[/bold] first to do an initial install.\n"
+            f"Expected location: [cyan]{env_path}[/cyan]"
+        )
+        sys.exit(1)
+
+    # Read existing .env to recover selected_ids and user_config
+    user_config: dict = {}
+    for line in env_path.read_text().splitlines():
+        if "=" in line and not line.startswith("#"):
+            key, _, value = line.partition("=")
+            user_config[key.strip()] = value.strip()
+
+    server_ip = user_config.get("SERVER_IP", get_local_ip())
+
+    # Recover selected_ids from the existing compose file
+    selected_ids: list[str] = []
+    if compose_path.exists():
+        import yaml as _yaml
+        existing = _yaml.safe_load(compose_path.read_text()) or {}
+        svc_names = set((existing.get("services") or {}).keys())
+        for app_id, app in app_catalog.APPS.items():
+            if svc_names & set(app["services"].keys()):
+                selected_ids.append(app_id)
+    else:
+        console.print("[yellow]No existing docker-compose.yml found — rebuilding with all apps from .env.[/yellow]")
+
+    console.print(f"[dim]Regenerating files for {len(selected_ids)} apps...[/dim]")
+
+    compose_dict, env_dict = compose_builder.build(selected_ids, server_ip, user_config)
+
+    if "caddy" in selected_ids:
+        _write_caddyfile(selected_ids, server_ip)
+    if "homepage" in selected_ids:
+        _write_homepage_services(selected_ids, server_ip)
+
+    compose_builder.write_files(compose_dict, env_dict, DEPLOY_DIR, selected_ids)
+
+    if dry_run:
+        console.print(
+            Panel(
+                f"[bold]Update dry run complete.[/bold]\n"
+                f"Files written to [cyan]{DEPLOY_DIR}[/cyan]\n"
+                f"Run [bold]docker compose up -d[/bold] in that directory to apply.",
+                border_style="yellow",
+            )
+        )
+        return
+
+    console.print("\n[bold cyan]Applying update...[/bold cyan]\n")
+    result = subprocess.run(
+        ["docker", "compose", "up", "-d", "--pull", "always"],
+        cwd=DEPLOY_DIR,
+    )
+    if result.returncode != 0:
+        console.print("\n[bold red]Update failed.[/bold red] Check the output above.")
+        sys.exit(1)
+
+    console.print("\n[bold green]Update complete.[/bold green] All containers restarted with latest config.")
+
+
+def _print_app_catalog() -> None:
+    """Print all available apps grouped by category."""
+    for cat, app_ids in app_catalog.CATEGORIES.items():
+        table = Table(
+            title=f"[bold]{cat}[/bold]",
+            box=box.SIMPLE_HEAD,
+            border_style="dim",
+            show_header=True,
+            header_style="bold dim",
+        )
+        table.add_column("App", style="bold", min_width=26)
+        table.add_column("Port", justify="right", style="cyan", min_width=6)
+        table.add_column("Description")
+        for app_id in app_ids:
+            app = app_catalog.APPS[app_id]
+            port = str(app["port"]) if app.get("port") else "—"
+            table.add_row(app["name"], port, app["description"])
+        console.print(table)
+
+
 def _write_caddyfile(selected_ids: list[str], host: str) -> None:
     """Generate a basic Caddyfile for selected apps."""
     DEPLOY_DIR.mkdir(parents=True, exist_ok=True)
@@ -208,6 +329,37 @@ def _write_caddyfile(selected_ids: list[str], host: str) -> None:
     with open(caddyfile_path, "w") as f:
         f.write("\n".join(lines))
     console.print(f"[dim]Caddyfile written to {caddyfile_path}[/dim]")
+
+
+def _write_homepage_services(selected_ids: list[str], server_ip: str) -> None:
+    """Generate Homepage services.yaml so the dashboard shows all selected apps."""
+    DEPLOY_DIR.mkdir(parents=True, exist_ok=True)
+    homepage_dir = DEPLOY_DIR / "homepage-config"
+    homepage_dir.mkdir(exist_ok=True)
+
+    skip = {"homepage", "watchtower", "autoheal", "caddy", "duckdns", "tailscale", "crowdsec"}
+    by_category: dict[str, list[dict]] = {}
+
+    for app_id in selected_ids:
+        if app_id in skip:
+            continue
+        app = app_catalog.APPS[app_id]
+        port = app.get("port")
+        if not port:
+            continue
+        cat = app["category"]
+        url_path = app.get("url_path", "")
+        entry = {app["name"]: {"href": f"http://{server_ip}:{port}{url_path}", "description": app["description"]}}
+        by_category.setdefault(cat, []).append(entry)
+
+    doc = [
+        {cat: [{name: cfg for name, cfg in entry.items()} for entry in entries]}
+        for cat, entries in by_category.items()
+    ]
+
+    services_path = homepage_dir / "services.yaml"
+    services_path.write_text(yaml.dump(doc, default_flow_style=False, allow_unicode=True))
+    console.print(f"[dim]Homepage services.yaml written to {services_path}[/dim]")
 
 
 def _print_urls(selected_ids: list[str], server_ip: str, domain: str) -> None:
@@ -257,6 +409,8 @@ def _print_credentials(env: dict, selected_ids: list[str]) -> None:
         ("grafana",    "Grafana",         "admin",                "GRAFANA_ADMIN_PASSWORD"),
         ("bookstack",  "BookStack",       "admin@example.com",    "BOOKSTACK_ROOT_PASSWORD"),
         ("miniflux",   "Miniflux",        "admin",                "MINIFLUX_ADMIN_PASSWORD"),
+        ("pihole",     "Pi-hole",         "(web UI login)",       "PIHOLE_PASSWORD"),
+        ("nas",        "NAS (Samba)",     "homelab",              "NAS_PASSWORD"),
     ]
 
     rows = [
@@ -275,6 +429,13 @@ def _print_credentials(env: dict, selected_ids: list[str]) -> None:
         lines.append("[bold]Admin login credentials:[/bold]")
         for app_name, username, password in rows:
             lines.append(f"  [bold]{app_name:<18}[/bold] {username}  /  [yellow]{password}[/yellow]")
+
+    if "nas" in selected_ids:
+        lines.append("")
+        lines.append(
+            "  [bold]FileBrowser[/bold]          admin  /  [yellow]admin[/yellow]"
+            "  [dim](change immediately at :8082 > Settings > User management)[/dim]"
+        )
 
     if "authentik" in selected_ids:
         lines.append("")
