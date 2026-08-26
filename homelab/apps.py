@@ -1802,6 +1802,31 @@ APPS: dict[str, dict] = {
         "volumes": {"ghost-content": None, "ghost-db": None},
     },
 
+    "memos": {
+        "name": "Memos",
+        "description": "Lightweight self-hosted notes and microblog — quick thoughts, todos, and journal entries",
+        "category": "Productivity",
+        "port": 5230,
+        "url_path": "",
+        "watchtower_exclude": False,
+        "connect": [
+            "Web UI: http://{SERVER_IP}:5230 — create your account on first visit",
+            "Mobile: use any browser; there are also community iOS/Android apps",
+            "API: http://{SERVER_IP}:5230/api/v1 — full REST API available",
+        ],
+        "services": {
+            "memos": {
+                "image": "neosmemo/memos:stable",
+                "container_name": "memos",
+                "restart": "unless-stopped",
+                "ports": ["5230:5230"],
+                "volumes": ["memos-data:/var/opt/memos"],
+                "networks": ["homelab"],
+            },
+        },
+        "volumes": {"memos-data": None},
+    },
+
     # -------------------------------------------------------------------------
     # COMMUNICATION
     # -------------------------------------------------------------------------
@@ -2350,6 +2375,61 @@ APPS: dict[str, dict] = {
     },
 }
 
+# ---------------------------------------------------------------------------
+# New apps — added in batch 2
+# ---------------------------------------------------------------------------
+
+APPS["it-tools"] = {
+    "name": "IT Tools",
+    "description": "Collection of 100+ browser-based IT utilities — base64, JWT, regex, cron, UUID, and more",
+    "category": "Productivity",
+    "port": 8079,
+    "url_path": "",
+    "watchtower_exclude": False,
+    "connect": [
+        "Web UI: http://{SERVER_IP}:8079 — all tools available immediately, no login needed",
+        "Works offline in the browser — no data is sent externally",
+    ],
+    "services": {
+        "it-tools": {
+            "image": "corentinth/it-tools:latest",
+            "container_name": "it-tools",
+            "restart": "unless-stopped",
+            "ports": ["8079:80"],
+            "networks": ["homelab"],
+        },
+    },
+    "volumes": {},
+}
+
+APPS["searxng"] = {
+    "name": "SearXNG",
+    "description": "Privacy-respecting metasearch engine — queries Google, Bing, DuckDuckGo without tracking",
+    "category": "Networking",
+    "port": 8093,
+    "url_path": "",
+    "watchtower_exclude": False,
+    "connect": [
+        "Web UI: http://{SERVER_IP}:8093 — search privately from your own server",
+        "Set as default browser search engine: use http://{SERVER_IP}:8093/search?q=%s",
+        "Preferences are saved per-browser session — customize engines and UI in Settings",
+    ],
+    "services": {
+        "searxng": {
+            "image": "searxng/searxng:latest",
+            "container_name": "searxng",
+            "restart": "unless-stopped",
+            "ports": ["8093:8080"],
+            "environment": {
+                "SEARXNG_BASE_URL": "http://{SERVER_IP}:8093",
+            },
+            "volumes": ["searxng-data:/etc/searxng"],
+            "networks": ["homelab"],
+        },
+    },
+    "volumes": {"searxng-data": None},
+}
+
 
 # ---------------------------------------------------------------------------
 # Category index — display order within each category is intentional
@@ -2360,10 +2440,10 @@ CATEGORIES: dict[str, list[str]] = {
     "Media Automation": ["sonarr", "radarr", "prowlarr", "qbittorrent", "jellyseerr", "bazarr"],
     "AI": ["ai", "flowise", "anythingllm"],
     "Smart Home": ["homeassistant", "grocy", "mealie"],
-    "Networking": ["caddy", "duckdns", "tailscale", "pihole", "adguardhome", "librespeed"],
+    "Networking": ["caddy", "duckdns", "tailscale", "pihole", "adguardhome", "librespeed", "searxng"],
     "Security": ["crowdsec", "authentik"],
     "Documents": ["paperless", "stirling-pdf", "archivebox"],
-    "Productivity": ["n8n", "gitea", "bookstack", "vikunja", "planka", "miniflux", "hoarder", "ghost"],
+    "Productivity": ["n8n", "gitea", "bookstack", "vikunja", "planka", "miniflux", "hoarder", "ghost", "memos", "it-tools"],
     "Communication": ["matrix", "mattermost", "ntfy"],
     "Monitoring": ["uptime-kuma", "dozzle", "beszel", "changedetection", "scrutiny", "grafana", "netdata", "healthchecks"],
     "Management": ["portainer", "homepage"],

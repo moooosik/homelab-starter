@@ -74,7 +74,7 @@ Either way: it checks what your server needs, installs anything missing, then wa
 
 ## App catalog
 
-58 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 58 choices.
+61 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 58 choices.
 
 ### Your Digital Life
 | App | Port | Description |
@@ -129,6 +129,7 @@ Either way: it checks what your server needs, installs anything missing, then wa
 | **Pi-hole** | 8053 | Network-wide DNS ad blocking for every device on your WiFi |
 | **AdGuard Home** | 8054 | DNS-based ad and tracker blocking — alternative to Pi-hole |
 | **LibreSpeed** | 8088 | Self-hosted network speed test — measure download, upload, and ping |
+| **SearXNG** | 8093 | Privacy-respecting metasearch engine — queries Google, Bing, DuckDuckGo without tracking |
 
 ### Security
 | App | Port | Description |
@@ -154,6 +155,8 @@ Either way: it checks what your server needs, installs anything missing, then wa
 | **Miniflux** | 8070 | Minimalist RSS feed reader |
 | **Hoarder** | 3210 | AI-powered bookmark manager — save links, auto-tag, full-text search |
 | **Ghost** | 2368 | Professional blogging and newsletter platform — self-hosted Substack |
+| **Memos** | 5230 | Lightweight self-hosted notes and microblog — quick thoughts, todos, journal entries |
+| **IT Tools** | 8079 | 100+ browser-based IT utilities — base64, JWT, regex, cron, UUID, and more |
 
 ### Communication
 | App | Port | Description |
@@ -272,7 +275,7 @@ If you don't have a domain, all apps are still accessible by local IP (e.g. `htt
 homelab-starter           # full interactive install
 homelab-starter --dry-run # generate files but do not deploy
 homelab-starter --update  # re-generate files from existing .env (no prompts)
-homelab-starter --list    # browse all 58 available apps and exit
+homelab-starter --list    # browse all 61 available apps and exit
 ```
 
 **`--update`** is useful after pulling a new version of homelab-starter — it re-reads your existing `~/homelab-starter/.env`, detects which apps are installed from the current `docker-compose.yml`, regenerates everything with the latest config (new healthchecks, env vars, side files), and restarts your containers. Your secrets are preserved.

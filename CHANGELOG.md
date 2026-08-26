@@ -5,6 +5,9 @@ All notable changes to homelab-starter are documented here.
 ## [Unreleased]
 
 ### Added
+- **Memos** (port 5230) — lightweight self-hosted notes and microblog; single container, SQLite-backed
+- **IT Tools** (port 8079) — 100+ browser-based IT utilities (base64, JWT, regex, cron, UUID, etc.); single container, no login required
+- **SearXNG** (port 8093) — privacy-respecting metasearch engine; queries Google/Bing/DDG without tracking
 - **`--update` flag**: `homelab-starter --update` re-generates `docker-compose.yml` and `.env` from the existing install without re-running the interactive flow — preserves all secrets, detects app selection from the current compose file
 - **`--list` flag**: `homelab-starter --list` prints all 58 apps grouped by category with ports and descriptions — browse the catalog without running the installer
 - **Flowise** (port 3100) — drag-and-drop AI workflow builder, chain LLMs and tools visually; connects to local Ollama
