@@ -5,6 +5,7 @@ All notable changes to homelab-starter are documented here.
 ## [Unreleased]
 
 ### Added
+- **Weekly image-tag verification** (`.github/workflows/verify-image-tags.yml` + `scripts/verify_image_tags.py`): checks that all 73 image references in `apps.py` still resolve at their registry, so an upstream retag or deletion is caught before a user hits it during `docker compose up`. Registry-aware — Docker Hub via the Hub catalogue API (avoids the anonymous pull-rate limit), GHCR/LSCR/others via the OCI registry v2 manifest endpoint with anonymous bearer auth. Opens a labelled issue on failure, or comments on the existing one.
 - **Compose validation test suite** (`tests/test_compose_validity.py`): hands every generated compose file to `docker compose config`, which resolves `${VAR}` interpolation and validates the schema — covering all 61 apps individually, all apps merged, and 5 realistic multi-app combos. Skipped automatically when Docker is unavailable.
 - Regression guards for silent-collision bugs: duplicate service names, volume names, and `container_name` values across apps (all merged via `dict.update()`, so a duplicate would overwrite silently)
 - Guard against single-brace `{VAR}` placeholders in service definitions, which never interpolate

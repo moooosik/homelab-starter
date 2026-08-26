@@ -1,0 +1,79 @@
+name: Verify image tags
+
+# Upstream images get retagged, renamed, or deleted without warning. A broken
+# tag would otherwise stay silent until a user hits it during `docker compose up`.
+
+on:
+  schedule:
+    # Mondays at 13:00 UTC (07:00 America/Denver in summer, 06:00 in winter)
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "homelab/apps.py"
+      - "scripts/verify_image_tags.py"
+      - ".github/workflows/verify-image-tags.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Verify every image tag resolves
+        id: verify
+        run: |
+          set +e
+          python scripts/verify_image_tags.py --verbose > report.txt 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat report.txt
+
+      - name: Open an issue if any tag is broken
+        # Only on the scheduled/manual run — a PR already surfaces the failure
+        # in its own checks, and filing an issue per push would be noise.
+        if: steps.verify.outputs.exit_code != '0' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh issue list --label broken-image-tag --state open \
+                       --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file - <<EOF
+          Still failing as of $(date -u '+%Y-%m-%d %H:%M UTC').
+
+          \`\`\`
+          $(cat report.txt)
+          \`\`\`
+          EOF
+            echo "Commented on existing issue #$existing"
+          else
+            gh label create broken-image-tag \
+              --description "An image tag in apps.py no longer resolves" \
+              --color d73a4a 2>/dev/null || true
+            gh issue create --label broken-image-tag \
+              --title "Broken image tag detected in apps.py" \
+              --body-file - <<EOF
+          The scheduled tag check could not resolve one or more images referenced in \`homelab/apps.py\`.
+          Users selecting the affected app(s) will hit a pull failure during \`docker compose up\`.
+
+          \`\`\`
+          $(cat report.txt)
+          \`\`\`
+
+          [Run log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+          fi
+
+      - name: Fail the job if any tag is broken
+        if: steps.verify.outputs.exit_code != '0'
+        run: exit 1

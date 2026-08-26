@@ -74,7 +74,7 @@ Either way: it checks what your server needs, installs anything missing, then wa
 
 ## App catalog
 
-61 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 58 choices.
+61 apps across 13 categories. Every app ships with a pre-configured compose snippet — ports, volumes, environment variables, and restart policies all set. The installer walks you through categories one at a time so you're never staring at a wall of 61 choices.
 
 ### Your Digital Life
 | App | Port | Description |
