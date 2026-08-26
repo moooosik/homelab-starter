@@ -2,7 +2,11 @@
 
 All notable changes to homelab-starter are documented here.
 
-## [Unreleased]
+## [0.2.0] — 2026-08-26
+
+Adds 8 apps (53 → 61), two new CLI flags, and fixes two bugs that made a
+first-time install fail outright. **If you are on 0.1.2, upgrade** — basic
+mode could not deploy any Media app.
 
 ### Added
 - **Weekly image-tag verification** (`.github/workflows/verify-image-tags.yml` + `scripts/verify_image_tags.py`): checks that all 73 image references in `apps.py` still resolve at their registry, so an upstream retag or deletion is caught before a user hits it during `docker compose up`. Registry-aware — Docker Hub via the Hub catalogue API (avoids the anonymous pull-rate limit), GHCR/LSCR/others via the OCI registry v2 manifest endpoint with anonymous bearer auth. Opens a labelled issue on failure, or comments on the existing one.
@@ -13,13 +17,13 @@ All notable changes to homelab-starter are documented here.
 - **IT Tools** (port 8079) — 100+ browser-based IT utilities (base64, JWT, regex, cron, UUID, etc.); single container, no login required
 - **SearXNG** (port 8093) — privacy-respecting metasearch engine; queries Google/Bing/DDG without tracking
 - **`--update` flag**: `homelab-starter --update` re-generates `docker-compose.yml` and `.env` from the existing install without re-running the interactive flow — preserves all secrets, detects app selection from the current compose file
-- **`--list` flag**: `homelab-starter --list` prints all 58 apps grouped by category with ports and descriptions — browse the catalog without running the installer
+- **`--list` flag**: `homelab-starter --list` prints all 61 apps grouped by category with ports and descriptions — browse the catalog without running the installer
 - **Flowise** (port 3100) — drag-and-drop AI workflow builder, chain LLMs and tools visually; connects to local Ollama
 - **AnythingLLM** (port 3110) — chat with your documents using local or cloud LLMs; private RAG on your own server
 - **ArchiveBox** (port 8099) — self-hosted internet archive, saves full webpage copies
 - **LibreSpeed** (port 8088) — self-hosted network speed test server
 - **Ghost** (port 2368) — professional blogging and newsletter platform, self-hosted Substack
-- Connect steps for all 56 apps — CONNECT.md covers every service with first-login URLs and client setup
+- Connect steps for all 61 apps — CONNECT.md covers every service with first-login URLs and client setup
 - Port conflict guard: installer detects Pi-hole + AdGuard Home selected together and asks which to keep
 - Homepage auto-configuration: generates `homepage-config/services.yaml` with all selected app tiles
 - Multi-drive Scrutiny: guided prompt for `SCRUTINY_DRIVES` accepts comma-separated device paths (e.g. `/dev/sda,/dev/nvme0n1`)
@@ -42,6 +46,19 @@ All notable changes to homelab-starter are documented here.
 - FileBrowser default `admin / admin` credential now shown in the post-install credentials panel — prevents the default being missed
 - All 12 postgres/redis/mariadb services now declare healthchecks; dependent apps upgraded to `condition: service_healthy` — eliminates DB-not-ready race conditions on first boot
 - Immich Redis upgraded from EOL `redis:6.2-alpine` to `redis:7-alpine`
+
+## [0.1.2] — 2026-08-12
+
+Published to PyPI from a working copy whose version bump was never committed —
+no `0.1.2` ever existed in `pyproject.toml`, so this release corresponds to no
+tag or commit. Reconstructed from the repository state at the time.
+
+### Added
+- Security policy, CI workflow, CodeQL analysis, and Dependabot configuration
+- PyPI metadata: keywords, classifiers, project URLs
+
+### Fixed
+- Security hardening and assorted bug fixes (#4)
 
 ## [0.1.1] — 2026-08-05
 
