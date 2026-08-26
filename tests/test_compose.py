@@ -200,6 +200,21 @@ def test_ai_category_has_three_apps():
     assert len(CATEGORIES["AI"]) == 3
 
 
+def test_memos_in_compose():
+    compose, _ = build(["memos"], "10.0.0.1", {})
+    assert "memos" in compose["services"]
+
+
+def test_it_tools_in_compose():
+    compose, _ = build(["it-tools"], "10.0.0.1", {})
+    assert "it-tools" in compose["services"]
+
+
+def test_searxng_in_compose():
+    compose, _ = build(["searxng"], "10.0.0.1", {})
+    assert "searxng" in compose["services"]
+
+
 def test_no_port_conflicts():
     from homelab.apps import APPS
     ports: dict[int, str] = {}
