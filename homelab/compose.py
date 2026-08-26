@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from homelab.apps import APPS
+from homelab.apps import APPS, get_guided_prompts
 
 
 _AUTO_SECRETS = {
@@ -64,6 +64,7 @@ def build(selected_ids: list[str], server_ip: str, user_config: dict) -> tuple[d
     _fill_auto_secrets(env)
     _expand_scrutiny_drives(services, env)
     _set_app_url_defaults(selected_ids, env)
+    _fill_prompt_defaults(selected_ids, env)
 
     compose = {
         "services": services,
@@ -104,6 +105,20 @@ def _expand_scrutiny_drives(services: dict, env: dict) -> None:
         drives = ["/dev/sda"]
     services["scrutiny"]["devices"] = drives
     env["SCRUTINY_DRIVES"] = ",".join(drives)
+
+
+def _fill_prompt_defaults(selected_ids: list[str], env: dict) -> None:
+    """Apply guided-prompt defaults for keys still unset.
+
+    Basic mode skips the prompts entirely, which used to leave path variables
+    like MEDIA_PATH empty — rendering `${MEDIA_PATH}:/media` as `:/media`, a
+    volume spec Docker rejects outright. Runs last so earlier, better-informed
+    defaults (e.g. GHOST_URL built from the server IP) are never overwritten.
+    """
+    for prompt in get_guided_prompts(selected_ids):
+        default = prompt.get("default", "")
+        if default and not env.get(prompt["key"]):
+            env[prompt["key"]] = default
 
 
 def _set_app_url_defaults(selected_ids: list[str], env: dict) -> None:

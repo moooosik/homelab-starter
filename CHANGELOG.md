@@ -5,6 +5,9 @@ All notable changes to homelab-starter are documented here.
 ## [Unreleased]
 
 ### Added
+- **Compose validation test suite** (`tests/test_compose_validity.py`): hands every generated compose file to `docker compose config`, which resolves `${VAR}` interpolation and validates the schema — covering all 61 apps individually, all apps merged, and 5 realistic multi-app combos. Skipped automatically when Docker is unavailable.
+- Regression guards for silent-collision bugs: duplicate service names, volume names, and `container_name` values across apps (all merged via `dict.update()`, so a duplicate would overwrite silently)
+- Guard against single-brace `{VAR}` placeholders in service definitions, which never interpolate
 - **Memos** (port 5230) — lightweight self-hosted notes and microblog; single container, SQLite-backed
 - **IT Tools** (port 8079) — 100+ browser-based IT utilities (base64, JWT, regex, cron, UUID, etc.); single container, no login required
 - **SearXNG** (port 8093) — privacy-respecting metasearch engine; queries Google/Bing/DDG without tracking
@@ -23,6 +26,8 @@ All notable changes to homelab-starter are documented here.
 - PyPI install option (`pip install homelab-starter`)
 
 ### Fixed
+- **Basic mode generated an unusable compose file**: config depth `basic` skips the guided prompts, which left path variables (`MEDIA_PATH`, `DOWNLOADS_PATH`, `BOOKS_PATH`, and 9 others) unset. `${MEDIA_PATH}:/media` then rendered as `:/media`, a volume spec Docker rejects outright — so `docker compose up` failed immediately for all 12 affected apps, including every Media app. Prompt defaults are now applied for any key the user did not supply, in all config depths.
+- SearXNG `SEARXNG_BASE_URL` used single-brace `{SERVER_IP}`, which is only expanded in side files and connect steps — the container received the literal string. Now uses compose-native `${SERVER_IP}`.
 - Matrix Synapse first-boot failure: added `synapse-init` init container that generates `homeserver.yaml` before the main service starts
 - `MATRIX_REGISTRATION_SECRET` wired into `SYNAPSE_REGISTRATION_SHARED_SECRET` env var
 - `element-config.json` `server_name` now uses `MATRIX_SERVER_NAME` from guided prompt instead of hardcoded `matrix.local`

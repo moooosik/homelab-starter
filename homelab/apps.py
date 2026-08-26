@@ -2421,7 +2421,7 @@ APPS["searxng"] = {
             "restart": "unless-stopped",
             "ports": ["8093:8080"],
             "environment": {
-                "SEARXNG_BASE_URL": "http://{SERVER_IP}:8093",
+                "SEARXNG_BASE_URL": "http://${SERVER_IP}:8093",
             },
             "volumes": ["searxng-data:/etc/searxng"],
             "networks": ["homelab"],

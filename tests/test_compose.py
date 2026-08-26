@@ -228,6 +228,66 @@ def test_no_port_conflicts():
         ports[port] = app_id
 
 
+def test_service_dicts_use_compose_interpolation():
+    """Guard: service dicts are dumped raw to YAML, so placeholders need ${VAR}, not {VAR}.
+
+    Single-brace {VAR} is only expanded in side_files and connect steps. A bare
+    {VAR} inside a service definition reaches the container as a literal string.
+    """
+    import re
+    from homelab.apps import APPS
+    bare_placeholder = re.compile(r"(?<!\$)\{([A-Z][A-Z0-9_]*)\}")
+    violations = []
+    for app_id, app in APPS.items():
+        dumped = yaml.dump(app["services"])
+        for match in bare_placeholder.finditer(dumped):
+            violations.append(f"{app_id}: {match.group(0)} should be ${match.group(0)}")
+    assert not violations, (
+        "Bare-brace placeholders in service definitions:\n  " + "\n  ".join(violations)
+    )
+
+
+def test_no_service_name_conflicts():
+    """Guard: build() merges services with dict.update() — duplicate names overwrite silently."""
+    from homelab.apps import APPS
+    services: dict[str, str] = {}
+    for app_id, app in APPS.items():
+        for svc_name in app["services"]:
+            assert svc_name not in services, (
+                f"Service '{svc_name}' is defined by both '{services[svc_name]}' and '{app_id}'"
+            )
+            services[svc_name] = app_id
+
+
+def test_no_volume_name_conflicts():
+    """Guard: volumes are merged the same way — a shared name silently shares storage."""
+    from homelab.apps import APPS
+    volumes: dict[str, str] = {}
+    for app_id, app in APPS.items():
+        for vol_name in app["volumes"]:
+            assert vol_name not in volumes, (
+                f"Volume '{vol_name}' is declared by both '{volumes[vol_name]}' and '{app_id}'"
+            )
+            volumes[vol_name] = app_id
+
+
+def test_no_container_name_conflicts():
+    """Guard: Docker refuses to start two containers sharing a container_name."""
+    from homelab.apps import APPS
+    names: dict[str, str] = {}
+    for app_id, app in APPS.items():
+        for svc_name, svc in app["services"].items():
+            container_name = svc.get("container_name")
+            if container_name is None:
+                continue
+            owner = f"{app_id}/{svc_name}"
+            assert container_name not in names, (
+                f"container_name '{container_name}' is used by both "
+                f"'{names[container_name]}' and '{owner}'"
+            )
+            names[container_name] = owner
+
+
 def test_scrutiny_drives_empty_falls_back_to_default():
     compose, env = build(["scrutiny"], "10.0.0.1", {"SCRUTINY_DRIVES": ""})
     assert compose["services"]["scrutiny"]["devices"] == ["/dev/sda"]
