@@ -228,6 +228,7 @@ Apps that get auto-generated secrets:
 - Hoarder and Matrix registration secrets
 - Pi-hole web admin password
 - NAS Bundle (Samba) share password
+- Flowise admin password
 
 ---
 

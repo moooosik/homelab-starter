@@ -26,6 +26,7 @@ All notable changes to homelab-starter are documented here.
 - PyPI install option (`pip install homelab-starter`)
 
 ### Fixed
+- **Flowise started with a blank admin password**: `FLOWISE_PASSWORD` was a guided prompt defaulting to an empty string, so in basic mode Flowise came up with an unauthenticated admin panel — unlike every other admin password in the project, which are auto-generated. It is now in `_AUTO_SECRETS` (16 bytes) and shown in the post-install credentials panel alongside the configured username.
 - **Basic mode generated an unusable compose file**: config depth `basic` skips the guided prompts, which left path variables (`MEDIA_PATH`, `DOWNLOADS_PATH`, `BOOKS_PATH`, and 9 others) unset. `${MEDIA_PATH}:/media` then rendered as `:/media`, a volume spec Docker rejects outright — so `docker compose up` failed immediately for all 12 affected apps, including every Media app. Prompt defaults are now applied for any key the user did not supply, in all config depths.
 - SearXNG `SEARXNG_BASE_URL` used single-brace `{SERVER_IP}`, which is only expanded in side files and connect steps — the container received the literal string. Now uses compose-native `${SERVER_IP}`.
 - Matrix Synapse first-boot failure: added `synapse-init` init container that generates `homeserver.yaml` before the main service starts

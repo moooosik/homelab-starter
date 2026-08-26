@@ -215,6 +215,18 @@ def test_searxng_in_compose():
     assert "searxng" in compose["services"]
 
 
+def test_flowise_password_is_auto_generated():
+    """Flowise exposes an admin panel — a blank password leaves it unauthenticated."""
+    _, env = build(["flowise"], "10.0.0.1", {})
+    assert env.get("FLOWISE_PASSWORD"), "FLOWISE_PASSWORD must not be blank"
+    assert len(env["FLOWISE_PASSWORD"]) >= 10
+
+
+def test_flowise_password_not_overridden_when_set():
+    _, env = build(["flowise"], "10.0.0.1", {"FLOWISE_PASSWORD": "hunter2"})
+    assert env["FLOWISE_PASSWORD"] == "hunter2"
+
+
 def test_no_port_conflicts():
     from homelab.apps import APPS
     ports: dict[int, str] = {}
