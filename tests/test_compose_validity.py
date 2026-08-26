@@ -111,7 +111,6 @@ OPTIONAL_BLANK_VARS = {
     "DUCKDNS_TOKEN",       # generated at duckdns.org
     "PLEX_CLAIM",          # generated at plex.tv/claim
     "HOARDER_OPENAI_KEY",  # optional — Hoarder runs without AI tagging
-    "FLOWISE_PASSWORD",    # optional — prompted for in guided mode
 }
 
 
