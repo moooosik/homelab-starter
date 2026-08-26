@@ -2,6 +2,11 @@
 
 All notable changes to homelab-starter are documented here.
 
+## [Unreleased]
+
+### Fixed
+- **`--list` crashed on Windows terminals**: the banner's box-drawing characters cannot be encoded in cp1252, the default codepage for many Windows consoles and for redirected output (`homelab-starter --list > apps.txt`). The command died with `UnicodeEncodeError` after ~68 bytes. An ASCII banner is now used when the output encoding cannot represent the original, and unencodable characters elsewhere degrade instead of aborting. UTF-8 terminals are unaffected and still get the full banner.
+
 ## [0.2.0] — 2026-08-26
 
 Adds 8 apps (53 → 61), two new CLI flags, and fixes two bugs that made a

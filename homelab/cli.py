@@ -32,13 +32,53 @@ BANNER = """
               S T A R T E R
 """
 
+# Windows consoles and redirected output often default to a legacy codepage
+# (commonly cp1252) that cannot encode the box-drawing characters above. Rich
+# already downgrades its own borders, but the banner is our content, so we
+# carry an ASCII rendering for those terminals.
+ASCII_BANNER = r"""
+ _  _  ___  __  __ ___ _      _   ___
+| || |/ _ \|  \/  | __| |    /_\ | _ )
+| __ | (_) | |\/| | _|| |__ / _ \| _ \
+|_||_|\___/|_|  |_|___|____/_/ \_\___/
+              S T A R T E R
+"""
+
+
+def _supports(text: str, stream) -> bool:
+    """Can this stream's encoding represent every character in text?"""
+    encoding = getattr(stream, "encoding", None) or "utf-8"
+    try:
+        text.encode(encoding)
+    except (UnicodeEncodeError, LookupError):
+        return False
+    return True
+
+
+def _relax_output_encoding() -> None:
+    """Degrade unencodable characters instead of aborting the run.
+
+    A safety net for anything beyond the banner — app descriptions and prompt
+    hints also carry non-ASCII punctuation.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(errors="replace")
+        except (OSError, ValueError):
+            pass
+
 
 @click.command()
 @click.option("--dry-run", is_flag=True, help="Generate files but do not deploy.")
 @click.option("--list", "list_apps", is_flag=True, help="List all available apps and exit.")
 @click.option("--update", "do_update", is_flag=True, help="Re-generate files from existing .env without re-running the installer.")
 def main(dry_run: bool, list_apps: bool, do_update: bool) -> None:
-    console.print(Panel(BANNER.strip(), border_style="cyan", expand=False))
+    _relax_output_encoding()
+    banner = BANNER if _supports(BANNER, sys.stdout) else ASCII_BANNER
+    console.print(Panel(banner.strip(), border_style="cyan", expand=False))
 
     if list_apps:
         _print_app_catalog()
