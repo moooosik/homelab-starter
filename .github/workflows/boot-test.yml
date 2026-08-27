@@ -33,6 +33,10 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Install the package
+        # boot_test.py imports homelab.compose, which needs pyyaml
+        run: pip install -e .
+
       - name: Show runner capacity
         run: |
           echo "disk:"; df -h / | tail -1
