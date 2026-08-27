@@ -4,6 +4,9 @@ All notable changes to homelab-starter are documented here.
 
 ## [Unreleased]
 
+### Added
+- **Boot test** (`.github/workflows/boot-test.yml` + `scripts/boot_test.py`): actually starts a representative set of apps and waits for every container to report healthy, via `docker compose up --wait`. Until now nothing verified that an app *runs* — only that its compose file was valid. Covers the postgres and mysql healthcheck chains, a `depends_on: service_healthy` dependency, a host `docker.sock` mount, and plain single-container apps. Runs on PRs touching the app catalog or compose builder, weekly, and on demand.
+
 ### Fixed
 - **`--list` crashed on Windows terminals**: the banner's box-drawing characters cannot be encoded in cp1252, the default codepage for many Windows consoles and for redirected output (`homelab-starter --list > apps.txt`). The command died with `UnicodeEncodeError` after ~68 bytes. An ASCII banner is now used when the output encoding cannot represent the original, and unencodable characters elsewhere degrade instead of aborting. UTF-8 terminals are unaffected and still get the full banner.
 
