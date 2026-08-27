@@ -1,0 +1,49 @@
+name: Boot test
+
+# The rest of CI proves the generated compose file is valid. This proves the
+# containers actually start and pass their healthchecks — the layer that
+# `docker compose config` cannot reach.
+
+on:
+  schedule:
+    # Mondays at 13:30 UTC, just after the image-tag check
+    - cron: "30 13 * * 1"
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "homelab/apps.py"
+      - "homelab/compose.py"
+      - "scripts/boot_test.py"
+      - ".github/workflows/boot-test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  boot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Show runner capacity
+        run: |
+          echo "disk:"; df -h / | tail -1
+          echo "memory:"; free -h | head -2
+          docker compose version
+
+      - name: Boot a representative set of apps
+        run: python scripts/boot_test.py
+
+      - name: Clean up any stragglers
+        if: always()
+        run: |
+          docker ps -aq | xargs -r docker rm -f
+          docker volume prune -f
