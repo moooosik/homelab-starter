@@ -4,6 +4,14 @@ All notable changes to homelab-starter are documented here.
 
 ## [Unreleased]
 
+### Changed
+- **Renamed to `homeostat`.** After W. Ross Ashby's 1948 homeostat — a machine built to return itself to a stable state after disturbance, which is what this stack does: healthchecks on every database, Autoheal restarting unhealthy containers, Watchtower pulling updates nightly. The old name read as a starter template and sat one word away from the unrelated DockSTARTer.
+  - PyPI: `pip install homeostat` (PyPI cannot rename a project, so this is a new package; `homelab-starter` 0.2.0 remains published but will not receive updates)
+  - Repository: `github.com/moooosik/homeostat` — old URLs redirect automatically
+  - Site: `moooosik.github.io/homeostat` — **the old Pages URL does not redirect**
+  - The `homeostat` command is now the primary entry point; `homelab-starter` still works so existing installs keep running
+  - The deploy directory stays `~/homelab-starter` for now — moving it would strand existing stacks, so it needs a migration path rather than a rename
+
 ### Added
 - **Boot test** (`.github/workflows/boot-test.yml` + `scripts/boot_test.py`): actually starts a representative set of apps and waits for every container to report healthy, via `docker compose up --wait`. Until now nothing verified that an app *runs* — only that its compose file was valid. Covers the postgres and mysql healthcheck chains, a `depends_on: service_healthy` dependency, a host `docker.sock` mount, and plain single-container apps. Runs on PRs touching the app catalog or compose builder, weekly, and on demand.
 
