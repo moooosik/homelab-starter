@@ -3,8 +3,8 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "homelab-starter"
-version = "0.2.0"
+name = "homeostat"
+version = "0.3.0"
 description = "Set up your home server apps in minutes — pick what you want, it handles the rest"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -51,12 +51,14 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/moooosik/homelab-starter"
-Repository = "https://github.com/moooosik/homelab-starter"
-"Bug Tracker" = "https://github.com/moooosik/homelab-starter/issues"
-Changelog = "https://github.com/moooosik/homelab-starter/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/moooosik/homeostat"
+Repository = "https://github.com/moooosik/homeostat"
+"Bug Tracker" = "https://github.com/moooosik/homeostat/issues"
+Changelog = "https://github.com/moooosik/homeostat/blob/main/CHANGELOG.md"
 
 [project.scripts]
+homeostat = "homelab.cli:main"
+# kept so existing installs keep working after the rename
 homelab-starter = "homelab.cli:main"
 
 [tool.pytest.ini_options]
